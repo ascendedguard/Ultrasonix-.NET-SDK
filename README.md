@@ -11,7 +11,7 @@ The libaries must be compiled against the specific version of the SDK. You can d
 * Ultrasonix SDK: http://www.ultrasonix.com/sdk
 * Download SDK 5.7.1 (Current): http://www.ultrasonix.com/webfm_send/691
  
-** Notes:**
+**Notes:**
 
 The current version of the Ultrasonix .NET SDK should be considered an Alpha version. It is, for the most part, untested at this point, and may still contain unimplemented sections of the SDK.
 
