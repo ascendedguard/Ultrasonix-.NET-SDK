@@ -3,13 +3,16 @@
 #pragma once
 
 #include "Stdafx.h"
+#include "ProbeInfo.h"
 #include "ImagingMode.h"
 #include "ParamTypes.h"
+#include "RawDataEventArgs.h"
 
 using namespace System;
 using namespace System::Runtime::InteropServices;
 
 bool PreRunCallback(void*);
+bool RawDataCallback(void* param, unsigned char* data, int cineBlock, int header);
 
 namespace Ultrasonix
 {
@@ -27,8 +30,14 @@ namespace Ultrasonix
 					this->PreRunning(this, EventArgs::Empty);
 				}
 
+				void RaiseRawDataCallback(RawDataEventArgs^ args)
+				{
+					this->RawDataReceived(this, args);
+				}
+
 			public:
 				virtual event EventHandler<EventArgs^>^ PreRunning;
+				virtual event EventHandler<RawDataEventArgs^>^ RawDataReceived;
 
 				Porta()
 				{
@@ -38,6 +47,7 @@ namespace Ultrasonix
 					IntPtr ptr = System::Runtime::InteropServices::GCHandle::ToIntPtr(objHandle);
 
 					this->po->setPreRunCallback(PreRunCallback, ptr.ToPointer());
+					this->po->setRawDataCallback(RawDataCallback, ptr.ToPointer());
 				}
 			
 				~Porta()
@@ -200,7 +210,24 @@ namespace Ultrasonix
 					return probeNameStr;
 				}
 
-				// TODO: Implement getProbeInfo
+				ProbeInfo^ GetProbeInfo()
+				{
+					probeInfo info;
+
+					po->getProbeInfo(info);
+
+					ProbeInfo^ p = gcnew ProbeInfo();
+					p->Elements = info.elements;
+					p->Pitch = info.pitch;
+					p->Radius = info.radius;
+					p->Motorized = info.motorized;
+					p->MotorFieldOfView = info.motorFov;
+					p->MotorRadius = info.motorRadius;
+					p->MotorSteps = info.motorSteps;
+					p->MotorHasHomeSensor = info.motorHomeSensor;
+
+					return p;
+				}
 
 				bool TestElectronicComponent(int id)
 				{
@@ -250,9 +277,8 @@ namespace Ultrasonix
 				{
 					return (ImagingMode)po->getCurrentMode();
 				}
-
+				
 				// TODO: Implement event for DisplayCallback
-				// TODO: Implement event for RawDataCallback
 
 				int GetFrameCount(int index)
 				{
@@ -331,9 +357,6 @@ namespace Ultrasonix
 				{
 					return po->getDataFrameRate();
 				}
-
-				// TODO: Implement getParam
-				// TODO: Implement setParam
 
 				int GetParam(String^ param)
 				{
@@ -526,8 +549,17 @@ namespace Ultrasonix
 					return (VariableType)t;
 				}
 
-				// TODO: Implement GetListParam
-			
+				String^ GetListParam(int prmNum)
+				{
+					char* name = new char[128];
+					bool result = po->getListParam(name, 128, prmNum);
+
+					String^ n = Marshal::PtrToStringAnsi(IntPtr(name));
+					delete[] name;
+
+					return n;
+				}
+		
 				int GetNumParams()
 				{
 					return po->getNumParams();
@@ -551,6 +583,7 @@ namespace Ultrasonix
 					return size;
 				}
 
+				// The following two functions should be considered deprecated. They are removed in Porta 6.0
 				// TODO: Implement setDisplayCompressionTable
 				// TODO: Implement getCompressionTable
 

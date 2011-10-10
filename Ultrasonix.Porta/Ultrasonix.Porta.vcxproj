@@ -84,6 +84,8 @@
     <ClInclude Include="porta.h" />
     <ClInclude Include="porta_params_def.h" />
     <ClInclude Include="porta_std_includes.h" />
+    <ClInclude Include="ProbeInfo.h" />
+    <ClInclude Include="RawDataEventArgs.h" />
     <ClInclude Include="Stdafx.h" />
     <ClInclude Include="Ultrasonix.Porta.h" />
     <ClInclude Include="utx_opt.h" />

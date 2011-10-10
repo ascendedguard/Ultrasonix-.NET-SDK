@@ -6,8 +6,18 @@ using namespace Ultrasonix::Porta;
 
 bool PreRunCallback(void* param)
 {
-	Porta^ texo = static_cast<Porta^>(GCHandle::operator GCHandle(IntPtr(param)).Target);
-	texo->RaisePreRunning();
+	Porta^ porta = static_cast<Porta^>(GCHandle::operator GCHandle(IntPtr(param)).Target);
+	porta->RaisePreRunning();
+
+	return true;
+}
+
+bool RawDataCallback(void* param, unsigned char* data, int cineBlock, int header)
+{
+	Porta^ porta = static_cast<Porta^>(GCHandle::operator GCHandle(IntPtr(param)).Target);
+
+	RawDataEventArgs^ args = gcnew RawDataEventArgs(IntPtr(data), cineBlock, header);
+	porta->RaiseRawDataCallback(args);
 
 	return true;
 }
