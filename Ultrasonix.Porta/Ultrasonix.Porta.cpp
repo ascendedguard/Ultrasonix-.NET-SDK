@@ -21,3 +21,13 @@ bool RawDataCallback(void* param, unsigned char* data, int cineBlock, int header
 
 	return true;
 }
+
+bool DisplayCallback(void* param, int id, int header)
+{
+	Porta^ porta = static_cast<Porta^>(GCHandle::operator GCHandle(IntPtr(param)).Target);
+
+	DisplayCallbackEventArgs^ args = gcnew DisplayCallbackEventArgs(id, header);
+	porta->RaiseDisplayImageReceived(args);
+
+	return true;
+}

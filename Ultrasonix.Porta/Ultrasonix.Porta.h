@@ -7,12 +7,16 @@
 #include "ImagingMode.h"
 #include "ParamTypes.h"
 #include "RawDataEventArgs.h"
+#include "DisplayCallbackEventArgs.h"
+
+#include "PortaImagingException.h"
 
 using namespace System;
 using namespace System::Runtime::InteropServices;
 
 bool PreRunCallback(void*);
 bool RawDataCallback(void* param, unsigned char* data, int cineBlock, int header);
+bool DisplayCallback(void* prm, int id, int header);
 
 namespace Ultrasonix
 {
@@ -35,19 +39,19 @@ namespace Ultrasonix
 					this->RawDataReceived(this, args);
 				}
 
+				void RaiseDisplayImageReceived(DisplayCallbackEventArgs^ args)
+				{
+					this->DisplayImageReceived(this, args);
+				}
+
 			public:
 				virtual event EventHandler<EventArgs^>^ PreRunning;
 				virtual event EventHandler<RawDataEventArgs^>^ RawDataReceived;
+				virtual event EventHandler<DisplayCallbackEventArgs^>^ DisplayImageReceived;
 
 				Porta()
 				{
 					this->po = new porta();
-
-					objHandle = System::Runtime::InteropServices::GCHandle::Alloc(this);
-					IntPtr ptr = System::Runtime::InteropServices::GCHandle::ToIntPtr(objHandle);
-
-					this->po->setPreRunCallback(PreRunCallback, ptr.ToPointer());
-					this->po->setRawDataCallback(RawDataCallback, ptr.ToPointer());
 				}
 			
 				~Porta()
@@ -83,6 +87,10 @@ namespace Ultrasonix
 						Marshal::FreeHGlobal(pLicensePath);
 						Marshal::FreeHGlobal(pLutPath);
 					}
+
+					// Once the system is initialized, we can hook our events.
+					objHandle = System::Runtime::InteropServices::GCHandle::Alloc(this);
+
 					return result;
 				}
 
@@ -278,6 +286,27 @@ namespace Ultrasonix
 					return (ImagingMode)po->getCurrentMode();
 				}
 				
+				void StartRawDataCallback()
+				{
+					IntPtr ptr = System::Runtime::InteropServices::GCHandle::ToIntPtr(objHandle);
+
+					this->po->setRawDataCallback(RawDataCallback, ptr.ToPointer());
+				}
+
+				void StartPreRunCallback()
+				{
+					IntPtr ptr = System::Runtime::InteropServices::GCHandle::ToIntPtr(objHandle);
+
+					this->po->setPreRunCallback(PreRunCallback, ptr.ToPointer());
+				}
+
+				bool StartDisplayCallback(int frameIndex)
+				{
+					IntPtr ptr = System::Runtime::InteropServices::GCHandle::ToIntPtr(objHandle);
+
+					return po->setDisplayCallback(frameIndex, DisplayCallback, ptr.ToPointer());
+				}
+
 				// TODO: Implement event for DisplayCallback
 
 				int GetFrameCount(int index)
@@ -623,7 +652,12 @@ namespace Ultrasonix
 
 					unsigned char* data = new unsigned char[size];
 
-					po->getBwImage(index, data, useChroma);
+					bool result = po->getBwImage(index, data, useChroma);
+
+					if (result == false)
+					{
+						throw gcnew PortaImagingException("GetBwImage failed to retrieve an image");
+					}
 
 					return IntPtr(data);
 				}
