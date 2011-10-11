@@ -346,6 +346,22 @@ namespace Ultrasonix
 					return result;
 				}
 
+				bool GetPresetProbeID(String^ path, [Out] int% probeId1, [Out] int% probeId2, [Out] int% probeId3)
+				{
+					int id1, id2, id3;
+
+					IntPtr pPath = Marshal::StringToHGlobalAnsi(path);
+
+					bool result = po->getPresetProbeID((char*)pPath.ToPointer(), id1, id2, id3);
+
+					Marshal::FreeHGlobal(pPath);
+
+					probeId1 = id1;
+					probeId2 = id2;
+					probeId3 = id3;
+
+					return result;
+				}
 				// TODO: Implement getPresetProbeID
 
 				int GetFrameRate()
@@ -536,7 +552,19 @@ namespace Ultrasonix
 					return result;
 				}
 
-				// TODO: Implement GetParamMinMax
+				bool GetParamMinMax(String^ param, [Out] int% min, [Out] int% max)
+				{
+					int mn, mx;
+
+					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
+					bool result = po->getParamMinMax((char*)pParam.ToPointer(), mn, mx);
+					Marshal::FreeHGlobal(pParam);
+
+					min = mn;
+					max = mx;
+
+					return result;
+				}
 
 				VariableType GetParamType(String^ param)
 				{
@@ -582,10 +610,6 @@ namespace Ultrasonix
 
 					return size;
 				}
-
-				// The following two functions should be considered deprecated. They are removed in Porta 6.0
-				// TODO: Implement setDisplayCompressionTable
-				// TODO: Implement getCompressionTable
 
 				IntPtr GetBwImage(int index, bool useChroma)
 				{
@@ -647,17 +671,133 @@ namespace Ultrasonix
 					return po->processCineImage(index, frame);
 				}
 
-				// TODO: Implement ImportChromaMap
-				// TODO: Implement ImportColorMap
+				bool ImportChromaMap(int index, array<int>^ lut)
+				{
+					int size = lut->Length;
+					unsigned int* arr = new unsigned int[size];
+					
+					for(int i = 0; i < size; i++)
+					{
+						arr[i] = lut[i];
+					}
 
-				// TODO: Implement GetMicronsPerPixel
-				// TODO: Implement GetPixelCoordinates
-				// TODO: Implement GetUltrasoundCoordinates
+					bool result = po->importChromaMap(index, arr);
 
-				// TODO: Implement GetHorizontalArcRect
-				// TODO: Implement GetROI
-				// TODO: Implement GetColorBox
-				// TODO: Implement GetNewColorBox
+					delete[] arr;
+
+					return result;
+				}
+
+				bool ImportColorMap(int index, array<int>^ lut)
+				{
+					int size = lut->Length;
+					unsigned int* arr = new unsigned int[size];
+					
+					for(int i = 0; i < size; i++)
+					{
+						arr[i] = lut[i];
+					}
+
+					bool result = po->importColorMap(index, arr);
+
+					delete[] arr;
+
+					return result;
+				}
+
+				bool GetMicronsPerPixel(int index, [Out] int% mx, [Out] int% my)
+				{
+					int x, y;
+
+					bool result = po->getMicronsPerPixel(index, x, y);
+
+					mx = x;
+					my = y;
+
+					return result;
+				}
+
+				bool GetPixelCoordinates(int index, int line, int sample, [Out] int% xOut, [Out] int% yOut, bool bColor, int addAngle)
+				{
+					int x, y;
+
+					bool result = po->getPixelCoordinates(index, line, sample, x, y, bColor, addAngle);
+
+					xOut = x;
+					yOut = y;
+
+					return result;
+				}
+
+				bool GetUltrasoundCoordinates(int index, int x, int y, [Out] int% xOut, [Out] int% yOut, bool bColor, int addAngle)
+				{
+					int xo, yo;
+
+					bool result = po->getUltrasoundCoordinates(index, x, y, xo, yo, bColor, addAngle);
+
+					xOut = xo;
+					yOut = yo;
+
+					return result;
+				}
+
+				Rect^ GetHorizontalArcRect(int index, bool color, bool top, int sampleOverride)
+				{
+					URect rect;
+
+					bool result = po->getHorizontalArcRect(index, rect, color, top, sampleOverride);
+
+					// Throw exception if result == false
+
+					Rect^ r = gcnew Rect();
+					r->Top = rect.top;
+					r->Left = rect.left;
+					r->Right = rect.right;
+					r->Bottom = rect.bottom;
+
+					return r;
+				}
+
+				bool GetROI(int index, [Out] int% xOut, [Out] int% yOut)
+				{
+					int x, y;
+
+					bool result = po->getROI(index, &x, &y);
+
+					xOut = x;
+					yOut = y;
+
+					return result;
+				}
+
+				bool GetColorBox(int index, [Out] int% xOut, [Out] int% yOut)
+				{
+					int x, y;
+
+					bool result = po->getColorBox(index, &x, &y);
+
+					xOut = x;
+					yOut = y;
+
+					return result;
+				}
+
+				Rect^ GetNewColorBox(int index, int x, int y, bool center)
+				{
+					URect rect;
+
+					bool result = po->getNewColorBox(index, x, y, rect, center);
+
+					// Throw exception if result == false
+
+					Rect^ r = gcnew Rect();
+					r->Top = rect.top;
+					r->Left = rect.left;
+					r->Right = rect.right;
+					r->Bottom = rect.bottom;
+
+					return r;
+				}
 			
 				int GetLinePosition(int index)
 				{
