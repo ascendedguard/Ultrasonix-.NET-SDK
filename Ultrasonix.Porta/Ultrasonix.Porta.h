@@ -640,7 +640,7 @@ namespace Ultrasonix
 					return size;
 				}
 
-				IntPtr GetBwImage(int index, bool useChroma)
+				array<Byte>^ GetBwImage(int index, bool useChroma)
 				{
 					// This should be based on the set size, not necessarily hard-coded.
 					int size = 640*480;
@@ -650,7 +650,9 @@ namespace Ultrasonix
 						size *= 4;
 					}
 
-					unsigned char* data = new unsigned char[size];
+					array<Byte>^ arr = gcnew array<Byte>(size);
+					pin_ptr<Byte> p = &arr[0];
+					unsigned char* data = p;
 
 					bool result = po->getBwImage(index, data, useChroma);
 
@@ -659,7 +661,13 @@ namespace Ultrasonix
 						throw gcnew PortaImagingException("GetBwImage failed to retrieve an image");
 					}
 
-					return IntPtr(data);
+					return arr;
+				}
+
+				bool GetBwImage(int index, bool useChroma, IntPtr data)
+				{
+					unsigned char* d = (unsigned char*)data.ToPointer();
+					return po->getBwImage(index, d, useChroma);
 				}
 
 				IntPtr GetColorImage(int index)
