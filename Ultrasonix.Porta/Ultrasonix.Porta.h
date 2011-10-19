@@ -719,15 +719,28 @@ namespace Ultrasonix
 					return po->getColorData(index, d, velocity, prescan, copy);
 				}
 
-				IntPtr GetColorVV(int index)
+				array<Byte>^ GetColorVV(int index)
 				{
-					// TODO: Is this correct?
-					const int size = 640*480 * 4;
-					unsigned char* data = new unsigned char[size];
+					int size = 640*480*4;
 
-					po->getColorVV(index, data);
+					array<Byte>^ arr = gcnew array<Byte>(size);
+					pin_ptr<Byte> p = &arr[0];
+					unsigned char* data = p;
 
-					return IntPtr(data);
+					bool result = po->getColorVV(index, data);
+
+					if (result == false)
+					{
+						throw gcnew PortaImagingException("GetColorImage failed to retrieve an image");
+					}
+
+					return arr;
+				}
+
+				bool GetColorVV(int index, IntPtr data)
+				{
+					unsigned char* d = (unsigned char*)data.ToPointer();
+					return po->getColorVV(index, d);
 				}
 
 				int GetDisplayFrameCount(int index)
