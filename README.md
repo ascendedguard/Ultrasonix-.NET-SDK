@@ -9,11 +9,13 @@ The libaries must be compiled against the specific version of the SDK. You can d
 **References:**
 
 * Ultrasonix SDK: http://www.ultrasonix.com/sdk
-* Download SDK 5.7.1 (Current): http://www.ultrasonix.com/webfm_send/691
+* Download SDK 6.0.0 (Current): Not Yet Released
+ 
+**Previous Versions:**
+
+* [SDK 5.7.1](https://github.com/ascendedguard/Ultrasonix-.NET-SDK/tree/SDK-5.7.1)
  
 **Notes:**
-
-The current version of the Ultrasonix .NET SDK should be considered an Alpha version. It is, for the most part, untested at this point, and may still contain unimplemented sections of the SDK.
 
 Issues and bugs with the wrapper itself should be reported on Github. Issues with the Ultrasonix SDK itself should be reported to Ultrasonix.
 

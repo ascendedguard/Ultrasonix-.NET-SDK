@@ -39,6 +39,14 @@ public:
     int bottom;
 };
 
+class UPoint
+{
+public:
+
+    int x;
+    int y;
+};
+
 class UCurve
 {
 public:

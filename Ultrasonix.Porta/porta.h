@@ -11,6 +11,7 @@
 #include "porta_std_includes.h"
 
 class URect;
+class UPoint;
 class UCurve;
 class UGainCurve;
 enum EVariableType;
@@ -72,7 +73,7 @@ public:
     int getCurrentProbeID() const;
     int getProbeID(int connector) const;
     bool activateProbeConnector(int connector);
-    bool getProbeName(char* name, unsigned int sz, int id) const;
+    bool getProbeName(char* name, int sz, int id) const;
     bool getProbeInfo(probeInfo& nfo);
 
     // testing functions
@@ -103,7 +104,7 @@ public:
     const unsigned char* getFrameAddress(int index, int frame);
     unsigned char* getCineStart(unsigned int blockid);
     void clearCine();
-    int getFrameSize();
+    int getFrameSize(int displayIndex);
 
     // preset functions
     bool loadMasterPreset();
@@ -111,7 +112,7 @@ public:
     bool savePreset(const char* path, bool overwrite);
     bool isMasterPreset() const;
     bool isFactoryPreset() const;
-    bool findMasterPreset(char* path, unsigned int sz, int probe) const;
+    bool findMasterPreset(char* path, int sz, int probe) const;
     bool isMasterPreset(const char* path) const;
     bool getPresetProbeID(const char* path, int& probeid1, int& probeid2, int& probeid3) const;
 
@@ -126,6 +127,8 @@ public:
     bool setParam(const char* prm, const char* val) const;
     bool getParam(const char* prm, int& val) const;
     bool setParam(const char* prm, int val);
+    bool getParam(const char* prm, UPoint& val) const;
+    bool setParam(const char* prm, UPoint val);
     bool getParam(const char* prm, URect& val) const;
     bool setParam(const char* prm, URect val);
     bool getParam(const char* prm, UCurve& val) const;
@@ -141,11 +144,11 @@ public:
     // display setup functions
     bool setDisplayDimensions(int index, int x, int y);
     bool getDisplayDimensions(int index, int& x, int& y) const;
-    bool setDisplayCompressionTablePtr(int index, unsigned char* comprTbl);
-    bool getCompressionTable(unsigned char* comprTbl);
 
     // processed data retrieval functions
+    bool getPrescanBDimensions(int index, int &w, int &h) const;
     bool getBwImage(int index, unsigned char*& img, bool useChroma) const;
+    bool getBwImagePrescan(int index, unsigned char*& img) const;
     bool getColorImage(int index, unsigned char*& img) const;
     bool getColorData(int index, unsigned char*& img, bool velocity, bool prescan, bool copy) const;
     bool getColorVV(int index, unsigned char*& img) const;
@@ -173,6 +176,4 @@ public:
     double stepMotor(bool cw, int steps = 8);
     void setMotorHomeParams(int framesOffCenter);
     void setMotorActive(bool run);
-    void setMotorHomeOnRun(bool enable);
-    void setMotorPowerState(bool keepOnUntilDisconnect);
 };

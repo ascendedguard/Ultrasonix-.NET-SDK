@@ -85,7 +85,6 @@ public:
     bool addTGC(CURVE* tgc, int depth);
     bool addReceive(texoReceiveParams rxPrms);
     bool addTransmit(texoTransmitParams txPrms);
-    bool loadCompressionTable(char* data, int size);
     bool setPower(int power, int maxPositive, int maxNegative);
     void setVCAInfo(VCAInfo vcaInfo);
 

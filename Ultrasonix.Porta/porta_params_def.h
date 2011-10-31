@@ -228,7 +228,7 @@ public:
 ///         the Sonix clinical software shows the value in dB.
 ///
 ////////////////////////////////////////////////////////////////////////////////
-#define prmBDynRange "b-dynamic range"
+#define prmBDynRange "b-dyn log factor"
 ////////////////////////////////////////////////////////////////////////////////
 /// B Image Steering:
 /// \li \b Functionality: Steers the B image.
@@ -276,7 +276,7 @@ public:
 /// \li \b Functionality: Adjusts the number of focal points.
 /// \li \b Type: Integer
 /// \li \b Units: Count
-/// \li \b Range: 1 to 10, dependant on transducer, see imaging.lst.xml and imaging.set.xml.
+/// \li \b Range: 1 to 10, dependant on transducer, see imaging.set.xml.
 ///
 ////////////////////////////////////////////////////////////////////////////////
 #define prmBFocusCount "b-focus count"
@@ -327,15 +327,6 @@ public:
 ///
 ////////////////////////////////////////////////////////////////////////////////
 #define prmBExtensionAngle "b-extension angle"
-////////////////////////////////////////////////////////////////////////////////
-/// Focus Count:
-/// \li \b Functionality: Adjusts the number of focal points.
-/// \li \b Type: Integer
-/// \li \b Units: Count
-/// \li \b Range: 1 to 10, dependant on transducer.
-///
-////////////////////////////////////////////////////////////////////////////////
-#define prmBxFocusCount "bx-focus count"
 ////////////////////////////////////////////////////////////////////////////////
 /// Dual Mode Active Display:
 /// \li \b Functionality: Adjusts the active display in dual modes.
@@ -650,7 +641,6 @@ public:
 ///
 ////////////////////////////////////////////////////////////////////////////////
 #define prmTriplexActiveDisplay "triplex-mode"
-
 ////////////////////////////////////////////////////////////////////////////////
 /// Sampling Frequency:
 /// \li \b Functionality: Adjusts the sampling frequency of the envelope detector.
@@ -728,37 +718,6 @@ public:
 ///
 ////////////////////////////////////////////////////////////////////////////////
 #define prmPowerNegative "b-voltage [-]"
-////////////////////////////////////////////////////////////////////////////////
-/// B Sample Size:
-/// \li \b Functionality: Adjusts the B output sample size from the envelope detector.
-/// \li \b Type: Integer
-/// \li \b Units: Index
-/// \li \b Range: 0 and 1
-///@note    0 = 8 bit output. 1 = 16 bit output.
-///
-////////////////////////////////////////////////////////////////////////////////
-#define prmBSampleSize "b-sample size"
-////////////////////////////////////////////////////////////////////////////////
-/// RF Mode:
-/// \li \b Functionality: Adjusts the active displays in RF mode.
-/// \li \b Type: Integer
-/// \li \b Units: Index
-/// \li \b Range: 0, 1, 2
-///@note    0 = B image only. 1 = RF collection only. 2 = B and RF
-///
-////////////////////////////////////////////////////////////////////////////////
-#define prmRfMode "rf-mode"
-////////////////////////////////////////////////////////////////////////////////
-/// RF Decimation:
-/// \li \b Functionality: Adjusts the decimation factor from 40 MHz of the RF data.
-/// \li \b Type: Integer
-/// \li \b Units: Decimation Factor
-/// \li \b Range: 0 (40 MHz), 1, 2, 3
-///@note    When DDR is off, the data must be decimated to at least 20 MHz.
-///@sa      porta::init()
-///
-////////////////////////////////////////////////////////////////////////////////
-#define prmRfDecim "rf-rf decimation"
 ////////////////////////////////////////////////////////////////////////////////
 /// Motor Frames:
 /// \li \b Functionality: Adjusts the number of frames that will acquired in one sweep

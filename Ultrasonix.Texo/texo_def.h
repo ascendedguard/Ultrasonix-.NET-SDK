@@ -130,7 +130,8 @@ public:
     int manualDelays[65];
     /// custom line duration in ns
     int customLineDuration;
-    /// digital gain value applied to entire scanline (0 - 4095)
+    /// digital gain value applied to entire scanline (0 - 4095 (12 bits) for hw V2)
+    ///                                                  (0 - 16383 (14 bits) for hw V3 & V4)
     int lgcValue;
     /// tgc selection by index
     int tgcSel;
@@ -142,4 +143,10 @@ public:
     int numChannels;
     /// recieve aperture curve
     CURVE rxAprCrv;
+    // the window type to use for the receive aperture
+    int weightType;
+    // custom apodization window (true = on, false = off)
+    bool useCustomWindow;
+    // custom apodization window
+    unsigned char window[64];
 };
