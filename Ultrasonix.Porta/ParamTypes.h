@@ -139,7 +139,7 @@ namespace Ultrasonix
 				}
 		};
 
-		public ref class Size
+		private ref class Size
 		{
 			private:
 				int width;
