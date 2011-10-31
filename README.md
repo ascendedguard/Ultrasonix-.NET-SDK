@@ -2,7 +2,7 @@
 
 The included projects include simple .NET wrappers to enable developers to build .NET applications on Ultrasonix ultrasound hardware.
 
-All projects target .NET 4.0 Client Profile and have minimal references.A ll projects are licensed using the MIT License to provide minimal restrictions when implementing in your business. This SDK is not developed or directly supported by Ultrasonix, but is released and licensed under permission from Ultrasonix.
+All projects target .NET 4.0 Client Profile and have minimal references. All projects are licensed using the MIT License to provide minimal restrictions when implementing in your business. This SDK is not developed or directly supported by Ultrasonix, but is released and licensed under permission from Ultrasonix.
 
 The libaries must be compiled against the specific version of the SDK. You can download the required data and firmware files from the Ultrasonix SDK pages.
 
