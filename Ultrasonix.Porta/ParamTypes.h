@@ -157,6 +157,16 @@ namespace Ultrasonix
 					int get() { return height; }
 					void set(int value) { height = value; }
 				}
+
+				Size()
+				{
+				}
+
+				Size(int width, int height)
+				{
+					this->width = width;
+					this->height = height;
+				}
 		};
 
 		public enum class VariableType

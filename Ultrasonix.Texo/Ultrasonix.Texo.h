@@ -238,26 +238,6 @@ namespace Ultrasonix
 				return tex->addTransmit(tx);
 			}
 
-			public: bool LoadCompressionTable(array<char>^ data)
-			{
-				int size = data->Length;
-			
-				char* dat = new char[size];
-
-				for(int i = 0; i < size; i++)
-				{
-					dat[i] = data[i];
-				}
-
-				bool result = tex->loadCompressionTable(dat, size);
-			
-				// Is it truly safe to delete the compression table now?
-				// We may need to remove this in the deconstructor.
-				delete dat;
-
-				return result;
-			}
-		
 			public: bool SetPower(int power, int maxPositive, int maxNegative)
 			{
 				return tex->setPower(power, maxPositive, maxNegative);

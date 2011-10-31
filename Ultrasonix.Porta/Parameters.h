@@ -34,7 +34,6 @@ namespace Ultrasonix
 			static const String^ BImageOptimization = prmBImageOpt;
 			static const String^ BMru = prmBMru;
 			static const String^ BExtensionAngle = prmBExtensionAngle;
-			static const String^ BxFocusCount = prmBxFocusCount;
 			static const String^ DualActiveDisplay = prmDualActiveDisplay;
 			static const String^ QuadActiveDisplay = prmQuadActiveDisplay;
 			static const String^ MMode = prmMMode;
@@ -73,9 +72,6 @@ namespace Ultrasonix
 			static const String^ B4ImageRectB = prm4BImageRectB;
 			static const String^ PowerPositive = prmPowerPositive;
 			static const String^ PowerNegative = prmPowerNegative;
-			static const String^ BSampleSize = prmBSampleSize;
-			static const String^ RfMode = prmRfMode;
-			static const String^ RfDecimation = prmRfDecim;
 			static const String^ MotorFrames = prmMotorFrames;
 			static const String^ MotorSteps = prmMotorSteps;
 			static const String^ MotorStatus = prmMotorStatus;

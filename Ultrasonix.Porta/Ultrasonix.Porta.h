@@ -13,6 +13,7 @@
 
 using namespace System;
 using namespace System::Runtime::InteropServices;
+using namespace System::Collections::Generic;
 
 bool PreRunCallback(void*);
 bool RawDataCallback(void* param, unsigned char* data, int cineBlock, int header);
@@ -27,6 +28,9 @@ namespace Ultrasonix
 			private:
 				porta* po;
 				GCHandle objHandle;
+				
+				// Used to cache the display dimensions when calling local imaging functions.
+				Dictionary<int, Size^>^ displayDimensions;
 
 			internal:
 				void RaisePreRunning()
@@ -52,6 +56,7 @@ namespace Ultrasonix
 				Porta()
 				{
 					this->po = new porta();
+					displayDimensions = gcnew Dictionary<int, Size^>();
 				}
 			
 				~Porta()
@@ -624,26 +629,27 @@ namespace Ultrasonix
 
 				bool SetDisplayDimensions(int index, int x, int y)
 				{
+					displayDimensions[index] = gcnew Size(x, y);
 					return po->setDisplayDimensions(index, x, y);
 				}
 
-				Size^ GetDisplayDimensions(int index)
+				bool GetDisplayDimensions(int index, [Out] int% x, [Out] int% y)
 				{
-					int x, y;
+					int xOut, yOut;
 
-					bool result = po->getDisplayDimensions(index, x, y);
+					bool result = po->getDisplayDimensions(index, xOut, yOut);
 
-					Size^ size = gcnew Size();
-					size->Width = x;
-					size->Height = y;
+					x = xOut;
+					y = yOut;
 
-					return size;
+					return result;
 				}
 
 				array<Byte>^ GetBwImage(int index, bool useChroma)
 				{
 					// This should be based on the set size, not necessarily hard-coded.
-					int size = 640*480;
+					Size^ s = displayDimensions[index];
+					int size = s->Width * s->Height;
 
 					if (useChroma)
 					{
@@ -673,7 +679,8 @@ namespace Ultrasonix
 				array<Byte>^ GetColorImage(int index)
 				{
 					// This should be based on the set size, not necessarily hard-coded.
-					int size = 640*480*4;
+					Size^ s = displayDimensions[index];
+					int size = s->Width * s->Height * 4;
 
 					array<Byte>^ arr = gcnew array<Byte>(size);
 					pin_ptr<Byte> p = &arr[0];
@@ -697,7 +704,8 @@ namespace Ultrasonix
 
 				array<Byte>^ GetColorData(int index, bool velocity, bool prescan, bool copy)
 				{
-					int size = 640*480;
+					Size^ s = displayDimensions[index];
+					int size = s->Width * s->Height;
 
 					array<Byte>^ arr = gcnew array<Byte>(size);
 					pin_ptr<Byte> p = &arr[0];
@@ -721,7 +729,8 @@ namespace Ultrasonix
 
 				array<Byte>^ GetColorVV(int index)
 				{
-					int size = 640*480*4;
+					Size^ s = displayDimensions[index];
+					int size = s->Width * s->Height * 4;
 
 					array<Byte>^ arr = gcnew array<Byte>(size);
 					pin_ptr<Byte> p = &arr[0];
@@ -909,16 +918,6 @@ namespace Ultrasonix
 				void SetMotorActive(bool run)
 				{
 					return po->setMotorActive(run);
-				}
-
-				void SetMotorHomeOnRun(bool enable)
-				{
-					return po->setMotorHomeOnRun(enable);
-				}
-
-				void SetMotorPowerState(bool keepOnUntilDisconnect)
-				{
-					return po->setMotorPowerState(keepOnUntilDisconnect);
 				}
 		};
 	}
