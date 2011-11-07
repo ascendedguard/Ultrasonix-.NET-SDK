@@ -169,6 +169,36 @@ namespace Ultrasonix
 				}
 		};
 
+		public ref class Point
+		{
+			private:
+				int x;
+				int y;
+
+			public:
+				property int X
+				{
+					int get() { return x; }
+					void set(int value) { x = value; }
+				}
+
+				property int Y
+				{
+					int get() { return y; }
+					void set(int value) { y = value; }
+				}
+
+				Point()
+				{
+				}
+
+				Point(int x, int y)
+				{
+					this->x = x;
+					this->y = y;
+				}
+		};
+
 		public enum class VariableType
 		{
 			Unknown = -1,

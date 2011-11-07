@@ -496,6 +496,36 @@ namespace Ultrasonix
 					return result;
 				}
 
+				Point^ GetParamPoint(String^ param)
+				{
+					UPoint p;
+
+					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
+					bool result = po->getParam((char*)pParam.ToPointer(), p);
+					Marshal::FreeHGlobal(pParam);
+
+					Point^ point = gcnew Point();
+
+					point->X = p.x;
+					point->Y = p.y;
+
+					return point;
+				}
+
+				bool SetParam(String^ param, Point^ value)
+				{
+					UPoint p;
+
+					p.x = value->X;
+					p.y = value->Y;
+
+					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
+					bool result = po->setParam((char*)pParam.ToPointer(), p);
+					Marshal::FreeHGlobal(pParam);
+
+					return result;
+				}
+
 				Curve^ GetParamCurve(String^ param)
 				{
 					UCurve c;
