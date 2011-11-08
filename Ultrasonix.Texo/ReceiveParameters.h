@@ -27,6 +27,7 @@ namespace Ultrasonix
 				int decimation;
 				int numChannels;
 				Curve^ rxAprCrv;
+				int weightType;
 
 			public:
 				ReceiveParameters()
@@ -141,6 +142,12 @@ namespace Ultrasonix
 					Curve^ get() { return this->rxAprCrv; }
 				}
 
+				property int WeightType
+				{
+					int get() { return this->weightType; }
+					void set(int value) { this->weightType = value; }
+				}
+
 			internal:
 
 				texoReceiveParams ConvertToC()
@@ -184,6 +191,11 @@ namespace Ultrasonix
 					rx.rxAprCrv.btm = this->ReceiveApertureCurve->Bottom;
 					rx.rxAprCrv.vmid = this->ReceiveApertureCurve->VerticalMiddle;
 				
+					rx.weightType = this->WeightType;
+
+					// For now, this isn't supported.
+					rx.useCustomWindow = false;
+
 					return rx;
 				}
 		};

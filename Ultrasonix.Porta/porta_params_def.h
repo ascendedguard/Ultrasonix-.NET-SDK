@@ -517,7 +517,7 @@ public:
  *
  * \endcode
  */
-#define prmPwPrp      "pw-prp"
+#define prmPwPrp      "bounded-prp pw"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Color Box:
@@ -629,7 +629,7 @@ public:
  *
  * \endcode
  */
-#define prmColorPrp  "color-prp"
+#define prmColorPrp  "bounded-prp color"
 ////////////////////////////////////////////////////////////////////////////////
 /// Triplex Active Display:
 /// \li \b Functionality: Adjusts the active display(s) in triplex mode.

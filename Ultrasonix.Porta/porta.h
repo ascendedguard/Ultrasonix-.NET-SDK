@@ -146,7 +146,7 @@ public:
     bool getDisplayDimensions(int index, int& x, int& y) const;
 
     // processed data retrieval functions
-    bool getPrescanBDimensions(int index, int &w, int &h) const;
+    bool getPrescanBDimensions(int index, int& w, int& h) const;
     bool getBwImage(int index, unsigned char*& img, bool useChroma) const;
     bool getBwImagePrescan(int index, unsigned char*& img) const;
     bool getColorImage(int index, unsigned char*& img) const;
