@@ -11,6 +11,8 @@
 
 #include "PortaImagingException.h"
 
+#include "ImagingParameter.h"
+
 using namespace System;
 using namespace System::Runtime::InteropServices;
 using namespace System::Collections::Generic;
@@ -406,6 +408,11 @@ namespace Ultrasonix
 				int GetDataFrameRate()
 				{
 					return po->getDataFrameRate();
+				}
+
+				int GetParam(ImagingParameter param)
+				{
+					return po->getParam((imagingParams)param);
 				}
 
 				int GetParam(String^ param)
