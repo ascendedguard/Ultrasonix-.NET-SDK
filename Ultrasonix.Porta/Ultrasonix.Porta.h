@@ -682,6 +682,46 @@ namespace Ultrasonix
 					return result;
 				}
 
+				bool GetPrescanBDimensions(int index, [Out] int% w, [Out] int% h)
+				{
+					int xOut, yOut;
+
+					bool result = po->getPrescanBDimensions(index, xOut, yOut);
+
+					w = xOut;
+					h = yOut;
+
+					return result;
+				}
+
+				bool GetBwImagePrescan(int index, IntPtr data)
+				{
+					unsigned char* d = (unsigned char*)data.ToPointer();
+					return po->getBwImagePrescan(index, d);
+				}
+
+				array<Byte>^ GetBwImagePrescan(int index)
+				{
+					// This should be based on the set size, not necessarily hard-coded.
+					int w, h;
+					po->getPrescanBDimensions(index, w, h);
+					
+					int size = w * h;
+
+					array<Byte>^ arr = gcnew array<Byte>(size);
+					pin_ptr<Byte> p = &arr[0];
+					unsigned char* data = p;
+
+					bool result = po->getBwImagePrescan(index, data);
+
+					if (result == false)
+					{
+						throw gcnew PortaImagingException("GetBwImagePrescan failed to retrieve an image");
+					}
+
+					return arr;
+				}
+
 				array<Byte>^ GetBwImage(int index, bool useChroma)
 				{
 					// This should be based on the set size, not necessarily hard-coded.
