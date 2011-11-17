@@ -28,6 +28,7 @@ namespace Ultrasonix
 			static const String^ BDynRange = prmBDynRange;
 			static const String^ BSteer = prmBSteer;
 			static const String^ BGain = prmBGain;
+			static const String^ BTxGain = prmBTxGain;
 			static const String^ BFocusDepth = prmBFocusDepth;
 			static const String^ BFocusCount = prmBFocusCount;
 			static const String^ BFocusSpacing = prmBFocusSpacing;

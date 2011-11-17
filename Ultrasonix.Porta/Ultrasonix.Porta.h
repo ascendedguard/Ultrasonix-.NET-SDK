@@ -403,6 +403,11 @@ namespace Ultrasonix
 					return po->getDataFrameRate();
 				}
 
+				int GetParam(ImagingParameter param)
+				{
+					return po->getParam((imagingParams)param);
+				}
+
 				int GetParam(String^ param)
 				{
 					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);

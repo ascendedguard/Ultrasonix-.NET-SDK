@@ -81,6 +81,7 @@
   <ItemGroup>
     <ClInclude Include="DisplayCallbackEventArgs.h" />
     <ClInclude Include="ImagingModes.h" />
+    <ClInclude Include="ImagingParameter.h" />
     <ClInclude Include="Parameters.h" />
     <ClInclude Include="ParamTypes.h" />
     <ClInclude Include="porta.h" />
