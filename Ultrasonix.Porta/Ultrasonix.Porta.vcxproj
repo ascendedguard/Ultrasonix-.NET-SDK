@@ -81,11 +81,11 @@
   <ItemGroup>
     <ClInclude Include="DisplayCallbackEventArgs.h" />
     <ClInclude Include="ImagingModes.h" />
-    <ClInclude Include="ImagingParameter.h" />
     <ClInclude Include="Parameters.h" />
     <ClInclude Include="ParamTypes.h" />
     <ClInclude Include="porta.h" />
     <ClInclude Include="PortaImagingException.h" />
+    <ClInclude Include="porta_def.h" />
     <ClInclude Include="porta_params_def.h" />
     <ClInclude Include="porta_std_includes.h" />
     <ClInclude Include="ProbeInfo.h" />

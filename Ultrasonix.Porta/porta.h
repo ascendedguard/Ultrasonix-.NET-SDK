@@ -1,179 +1,126 @@
 #pragma once
 
 #ifdef EXPORT_PORTA
-    #define portalinkage __declspec(dllexport)
+    #define portaL __declspec(dllexport)
 #elif defined IMPORT_PORTA
-    #define portalinkage __declspec(dllimport)
+    #define portaL __declspec(dllimport)
 #else
-    #define portalinkage
+    #define portaL
 #endif
 
-#include "porta_std_includes.h"
+#include "porta_def.h"
+#include <vector>
 
-class URect;
-class UPoint;
-class UCurve;
-class UGainCurve;
-enum EVariableType;
-////////////////////////////////////////////////////////////////////////////////
-/// Porta is an API that provides access to the native imaging modes
-/// that run on the Ultrasonix ultrasound imaging electronics.
-///
-/// Features:
-/// \li Simple communication with the ultrasound electronics
-/// \li Full suite of clinical imaging modes
-/// \li Support for all Ultrasonix transducers
-/// \li Access to Ultrasonix clinical presets
-/// \li Access to all imaging parameters
-/// \li Up to 63 MB of cine storage
-/// \li Manage and collect images in memory
-/// \li Multiple data retrieval formats
-///
-/// Acquisition Control:
-/// \li Start / stop imaging
-/// \li Access to realtime data while imaging
-/// \li Access to cine buffer data once frozen
-/// \li I/O synchronization control
-///
-/// Data formats include:
-/// \li Scan converted B (all modes)
-/// \li Pre-scan converted B (all modes)
-/// \li Scan converted Color (color/triplex modes)
-/// \li Pre-scan converted Color (color/triplex modes)
-/// \li M mode data (m mode)
-/// \li Spectral Doppler data (PW/CW/triplex modes)
-/// \li RF data (RF mode)
-////////////////////////////////////////////////////////////////////////////////
-class portalinkage porta
-{
-public:
-    porta();
-    ~porta();
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-    // initialization functions
-    bool init(int cineSize, const char* firmwarePath, const char* settingsPath, const char* licensePath, const char* lutPath, int usm,
-        int pci, int hv, int ddr,
-        int channels);
-    bool shutdown();
-    bool isConnected() const;
-    bool getLastError(char* err, unsigned int sz);
-    bool getSystemId(char* sysid, unsigned int sz);
+portaL int portaInit(int cineSize, const char* firmwarePath, const char* settingsPath, const char* licensePath, const char* lutPath,
+    int usm, int pci, int hv, int ddr,
+    int channels);
+portaL void portaShutdown();
+portaL int portaIsConnected();
+portaL int portaGetSystemId(char* sysid, unsigned int sz);
 
-    // bnc functions
-    bool signalBnc();
-    bool pollBnc();
-    bool ackBnc();
+portaL int portaSignalBnc();
+portaL int portaPollBnc();
+portaL int portaAckBnc();
 
-    // eprom functions
-    int readEPROM(char* data, int sz);
-    int writeEPROM(char* data, int sz);
+portaL int portaSelectProbe(int id);
+portaL int portaGetCurrentProbeID();
+portaL int portaGetProbeID(int connector);
+portaL int portaActivateProbeConnector(int connector);
+portaL int portaGetProbeName(char* name, int sz, int id);
+portaL int portaGetProbeInfo(probeInfo& nfo);
 
-    // probe functions
-    bool selectProbe(int id) const;
-    int getCurrentProbeID() const;
-    int getProbeID(int connector) const;
-    bool activateProbeConnector(int connector);
-    bool getProbeName(char* name, int sz, int id) const;
-    bool getProbeInfo(probeInfo& nfo);
+portaL int portaTestElectronicComponent(int id);
+portaL void portaSetPowerTestParams(int tmout, int numQuickLevels, int* levels);
+portaL int portaReadPowerValues(double* pv, double* nv, double* pav, double* nav, int& tmout, double& tol);
 
-    // testing functions
-    bool testElectronicComponent(int id);
-    bool testProbeElements(int connector, double* elementData, int probe = -1, int freq = 0, int depth = 20000, double gain = 0.80,
-        int aquisitionTime = 2000);
-    void setPowerTestParams(int tmout, int numQuickLevels, int* levels);
-    bool readPowerValues(double* pv, double* nv, double* pav, double* nav, int& tmout, double& tol);
+portaL int portaRunImage();
+portaL int portaStopImage();
+portaL int portaIsImaging();
 
-    // acquisition functions
-    bool runImage();
-    bool stopImage();
-    bool isImaging() const;
-    void setPreRunCallback(UTX_PRERUN_CALLBACK fn, void* prm);
+portaL int portaSetWatchdog(int timeout);
+portaL int portaSetCustomDMA(int enable, int physicaladdress, int size);
+portaL void portaSetSleepDelay(int delay);
 
-    bool setWatchdog(int timeout);
-    bool setCustomDMA(bool enable, int physicaladdress, int size);
-    bool setSleepDelay(int delay);
+portaL int portaInitMode(imagingMode mode);
+portaL imagingMode portaGetCurrentMode();
 
-    // imaging mode functions
-    bool initImagingMode(imagingMode mode);
-    imagingMode getCurrentMode() const;
+portaL void portaSetDisplayCallback(int index, PORTA_IMG_CALLBACK fn, void* prm);
+portaL void portaSetRawDataCallback(PORTA_DATA_CALLBACK fn, void* prm);
+portaL void portaSetPreRunCallback(PORTA_PRERUN_CALLBACK fn, void* prm);
 
-    // data acquisition functions
-    bool setDisplayCallback(int index, UTX_IMG_CALLBACK fn, void* prm);
-    void setRawDataCallback(UTX_ACQ_CALLBACK fn, void* prm);
-    int getFrameCount(unsigned int index);
-    const unsigned char* getFrameAddress(int index, int frame);
-    unsigned char* getCineStart(unsigned int blockid);
-    void clearCine();
-    int getFrameSize(int displayIndex);
+portaL int portaGetFrameCount(unsigned int index);
+portaL int portaGetFrameSize(int index);
+portaL const unsigned char* portaGetFrameAddress(int index, int frame);
+portaL unsigned char* portaGetCineStart(unsigned int index);
+portaL void portaClearCine();
 
-    // preset functions
-    bool loadMasterPreset();
-    bool loadPreset(const char* path);
-    bool savePreset(const char* path, bool overwrite);
-    bool isMasterPreset() const;
-    bool isFactoryPreset() const;
-    bool findMasterPreset(char* path, int sz, int probe) const;
-    bool isMasterPreset(const char* path) const;
-    bool getPresetProbeID(const char* path, int& probeid1, int& probeid2, int& probeid3) const;
+portaL int portaLoadMasterPreset();
+portaL int portaLoadPreset(const char* path);
+portaL int portaSavePreset(const char* path, int overwrite);
+portaL int portaFindMasterPreset(char* path, int sz, int probe);
+portaL int portaIsMasterPreset(const char* path);
+portaL int portaGetPresetProbeID(const char* path, int& probeid1, int& probeid2, int& probeid3);
 
-    // frame rate functions
-    int getFrameRate() const;
-    int getDataFrameRate() const;
+portaL int portaGetFrameRate();
+portaL int portaGetDataFrameRate();
 
-    // imaging parameter functions
-    int getParam(imagingParams prm) const;
-    int getParam(const char* prm) const;
-    bool getParam(const char* prm, char* val, int sz) const;
-    bool setParam(const char* prm, const char* val) const;
-    bool getParam(const char* prm, int& val) const;
-    bool setParam(const char* prm, int val);
-    bool getParam(const char* prm, UPoint& val) const;
-    bool setParam(const char* prm, UPoint val);
-    bool getParam(const char* prm, URect& val) const;
-    bool setParam(const char* prm, URect val);
-    bool getParam(const char* prm, UCurve& val) const;
-    bool setParam(const char* prm, UCurve val);
-    bool getParam(const char* prm, UGainCurve& val) const;
-    bool setParam(const char* prm, UGainCurve val);
-    bool cycleParam(const char* prm, bool fwd, bool wrap = false);
-    bool getParamMinMax(const char* prm, int& min, int& max) const;
-    bool getParamType(const char* prm, EVariableType& type) const;
-    bool getListParam(char* prm, unsigned int sz, int prmNum);
-    int getNumParams();
+portaL int portaGetParam(const char* prm);
+portaL int portaGetParamI(const char* prm, int& val);
+portaL int portaSetParamI(const char* prm, int val);
+portaL int portaGetParamS(const char* prm, char* val, int sz);
+portaL int portaSetParamS(const char* prm, const char* val);
+portaL int portaGetParamP(const char* prm, portaPoint& val);
+portaL int portaSetParamP(const char* prm, portaPoint val);
+portaL int portaGetParamR(const char* prm, portaRect& val);
+portaL int portaSetParamR(const char* prm, portaRect val);
+portaL int portaGetParamC(const char* prm, portaCurve& val);
+portaL int portaSetParamC(const char* prm, portaCurve val);
+portaL int portaGetParamGC(const char* prm, portaGainCurve& val);
+portaL int portaSetParamGC(const char* prm, portaGainCurve val);
+portaL int portaGetParamA(const char* prm, std::vector< int >& val);
+portaL int portaSetParamA(const char* prm, const std::vector< int > val);
 
-    // display setup functions
-    bool setDisplayDimensions(int index, int x, int y);
-    bool getDisplayDimensions(int index, int& x, int& y) const;
+portaL int portaCycleParam(const char* prm, int fwd, int wrap = 0);
+portaL int portaGetParamMinMax(const char* prm, int& min, int& max);
+portaL int portaGetParamType(const char* prm, portaVarType& type);
+portaL int portaGetListParam(char* prm, unsigned int sz, int prmNum);
+portaL int portaGetNumParams();
 
-    // processed data retrieval functions
-    bool getPrescanBDimensions(int index, int& w, int& h) const;
-    bool getBwImage(int index, unsigned char*& img, bool useChroma) const;
-    bool getBwImagePrescan(int index, unsigned char*& img) const;
-    bool getColorImage(int index, unsigned char*& img) const;
-    bool getColorData(int index, unsigned char*& img, bool velocity, bool prescan, bool copy) const;
-    bool getColorVV(int index, unsigned char*& img) const;
-    int getDisplayFrameCount(int index);
-    bool processCineImage(int index, int frame);
+portaL int portaSetDisplayDimensions(int index, int x, int y);
+portaL int portaGetDisplayDimensions(int index, int& x, int& y);
 
-    // mapping functions
-    bool importChromaMap(int index, const unsigned int* lut);
-    bool importColorMap(int index, const unsigned int* lut);
+portaL int portaGetPrescanBDimensions(int index, int& w, int& h);
+portaL int portaGetBwImage(int index, unsigned char*& img, int useChroma);
+portaL int portaGetBwImagePrescan(int index, unsigned char*& img);
+portaL int portaGetColorImage(int index, unsigned char*& img);
+portaL int portaGetColorImageOnly(int index, unsigned char*& img);
+portaL int portaGetColorData(int index, unsigned char*& img, int velocity, int prescan, int copy);
+portaL int portaGetColorVV(int index, unsigned char*& img);
+portaL int portaGetDisplayFrameCount(int index);
+portaL int portaProcessCineImage(int index, int frame);
 
-    // image geometry functions
-    bool getMicronsPerPixel(int index, int& mx, int& my) const;
-    bool getPixelCoordinates(int index, int line, int sample, int& xOut, int& yOut, bool bColor, int addAngle = 0) const;
-    bool getUltrasoundCoordinates(int index, int x, int y, int& xOut, int& yOut, bool bColor, int addAngle = 0) const;
+portaL int portaImportChromaMap(int index, const unsigned int* lut);
+portaL int portaImportColorMap(int index, const unsigned int* lut);
 
-    // graphical image functions
-    bool getHorizontalArcRect(int index, URect& arcRect, bool color, bool top, int sampleOverride = 0) const;
-    bool getROI(int index, int* xOut, int* yOut) const;
-    bool getColorBox(int index, int* xOut, int* yOut) const;
-    bool getNewColorBox(int index, int x, int y, URect& colorBox, bool center);
-    int getLinePosition(int index) const;
+portaL int portaGetMicronsPerPixel(int index, int& mx, int& my);
+portaL int portaGetPixelCoordinates(int index, int line, int sample, int& xOut, int& yOut, int bColor, int addAngle = 0);
+portaL int portaGetUltrasoundCoordinates(int index, int x, int y, int& xOut, int& yOut, int bColor, int addAngle = 0);
 
-    // motor functions
-    double goToPosition(double angle);
-    double stepMotor(bool cw, int steps = 8);
-    void setMotorHomeParams(int framesOffCenter);
-    void setMotorActive(bool run);
-};
+portaL int portaGetHorizontalArcRect(int index, portaRect& arcRect, int color, int top, int sampleOverride = 0);
+portaL int portaGetROI(int index, int* xOut, int* yOut);
+portaL int portaGetColorBox(int index, int* xOut, int* yOut);
+portaL int portaGetNewColorBox(int index, int x, int y, portaRect& colorBox, int center);
+portaL int portaGetLinePosition(int index);
+
+portaL double portaGoToPosition(double angle);
+portaL double portaStepMotor(int cw, int steps = 8);
+portaL void portaSetMotorHomeParams(int framesOffCenter);
+portaL void portaSetMotorActive(int run);
+
+#ifdef __cplusplus
+}
+#endif

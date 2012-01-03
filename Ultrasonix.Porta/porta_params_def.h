@@ -3,30 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#define PARAM_ERROR (0xFFFFFFFF)
-
-/// Stores probe information.
-class probeInfo
-{
-public:
-    /// The number of elements the probe has.
-    int elements;
-    /// The distance in microns between elements.
-    int pitch;
-    /// The radius of the probe if it is a convex or concave array.
-    int radius;
-    /// Specifies whether the probe has a motor or not.
-    bool motorized;
-    /// The field of view of the motor if applicable.
-    int motorFov;
-    /// The radius of the motor if applicable.
-    int motorRadius;
-    /// The number of steps in the motor sweep if applicable.
-    int motorSteps;
-    /// Specifies whether the motorized probe has a homing sensor
-    bool motorHomeSensor;
-};
-
 ////////////////////////////////////////////////////////////////////////////////
 /// Imaging Parameters Definition.
 ////////////////////////////////////////////////////////////////////////////////
@@ -751,83 +727,79 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 #define prmMotorStatus "4d-motor status"
 
-/// Other imaging parameters that are not specifically defined as variables in the Ultrasonix software.
-enum imagingParams
-{
-    ////////////////////////////////////////////////////////////////////////////////
-    /// B Line Count:
-    /// \li \b Functionality: Read only parameter for retreiving the number of B lines.
-    /// \li \b Type: Integer
-    /// \li \b Units: Scanlines
-    /// \li \b Range: Depends on sector and line density.
-    ///@note    The B line count can also be determined by multiplying the B line density
-    ///         by the sector percentage.
-    ///
-    ////////////////////////////////////////////////////////////////////////////////
-    prmBNumLines = 0,
-    ////////////////////////////////////////////////////////////////////////////////
-    /// B Sample Count:
-    /// \li \b Functionality: Read only parameter for reteiving the number of 8-bit B samples.
-    /// \li \b Type: Integer
-    /// \li \b Units: Samples
-    /// \li \b Range: Depends on imaging depth and B sampling frequencyn.
-    ////////////////////////////////////////////////////////////////////////////////
-    prmBNumSamples = 1,
-    ////////////////////////////////////////////////////////////////////////////////
-    /// RF Line Count:
-    /// \li \b Functionality: Read only parameter for retreiving the number of RF lines.
-    /// \li \b Type: Integer
-    /// \li \b Units: Scanlines
-    /// \li \b Range: Depends on sector and line density.
-    ///@note    The RF line count can also be determined by multiplying the B line density
-    ///         by the sector percentage.
-    ///
-    ////////////////////////////////////////////////////////////////////////////////
-    prmRfNumLines,
-    ////////////////////////////////////////////////////////////////////////////////
-    /// RF Sample Count:
-    /// \li \b Functionality: Read only parameter for reteiving the number of 16-bit RF samples.
-    /// \li \b Type: Integer
-    /// \li \b Units: Samples
-    /// \li \b Range: Depends on imaging depth and RF decimation.
-    ///@note    The RF sample count can also be determined by the following formula:\n
-    ///         \code NumSamples = ((ImageRect.bottom - ImageRect.top) * 40000) / (SamplingFrequency / 1000) \endcode
-    ////////////////////////////////////////////////////////////////////////////////
-    prmRfNumSamples,
-    ////////////////////////////////////////////////////////////////////////////////
-    /// Color Doppler Line Count:
-    /// \li \b Functionality: Read only parameter for retreiving the number of Color lines, including ensemble.
-    /// \li \b Type: Integer
-    /// \li \b Units: Scanlines
-    /// \li \b Range: Depends on color box width, line density, and ensemble.
-    ///
-    ////////////////////////////////////////////////////////////////////////////////
-    prmColorNumLines,
-    ////////////////////////////////////////////////////////////////////////////////
-    /// Color Doppler Sample Count:
-    /// \li \b Functionality: Read only parameter for reteiving the number of 16-bit color RF samples.
-    /// \li \b Type: Integer
-    /// \li \b Units: Samples
-    /// \li \b Range: Depends on color box height and RF decimation for color mode.
-    //
-    ////////////////////////////////////////////////////////////////////////////////
-    prmColorNumSamples,
-    ////////////////////////////////////////////////////////////////////////////////
-    /// Positive Voltage Level:
-    /// \li \b Functionality: The actual positive voltage of the current setting.
-    /// \li \b Type: Integer
-    /// \li \b Units: Volts
-    /// \li \b Range: 0 - 100
-    ///
-    ////////////////////////////////////////////////////////////////////////////////
-    prmVoltageLevelPos,
-    ////////////////////////////////////////////////////////////////////////////////
-    /// Negative Voltage Level:
-    /// \li \b Functionality: The actual negative voltage of the current setting.
-    /// \li \b Type: Integer
-    /// \li \b Units: Volts
-    /// \li \b Range: -0 - -100
-    ///
-    ////////////////////////////////////////////////////////////////////////////////
-    prmVoltageLevelNeg
-};
+////////////////////////////////////////////////////////////////////////////////
+/// B Line Count:
+/// \li \b Functionality: Read only parameter for retreiving the number of B lines.
+/// \li \b Type: Integer
+/// \li \b Units: Scanlines
+/// \li \b Range: Depends on sector and line density.
+///@note    The B line count can also be determined by multiplying the B line density
+///         by the sector percentage.
+///
+////////////////////////////////////////////////////////////////////////////////
+#define prmBNumLines "porta-blines"
+////////////////////////////////////////////////////////////////////////////////
+/// B Sample Count:
+/// \li \b Functionality: Read only parameter for reteiving the number of 8-bit B samples.
+/// \li \b Type: Integer
+/// \li \b Units: Samples
+/// \li \b Range: Depends on imaging depth and B sampling frequencyn.
+////////////////////////////////////////////////////////////////////////////////
+#define prmBNumSamples "porta-bsamples"
+////////////////////////////////////////////////////////////////////////////////
+/// RF Line Count:
+/// \li \b Functionality: Read only parameter for retreiving the number of RF lines.
+/// \li \b Type: Integer
+/// \li \b Units: Scanlines
+/// \li \b Range: Depends on sector and line density.
+///@note    The RF line count can also be determined by multiplying the B line density
+///         by the sector percentage.
+///
+////////////////////////////////////////////////////////////////////////////////
+#define prmRfNumLines "porta-rflines"
+////////////////////////////////////////////////////////////////////////////////
+/// RF Sample Count:
+/// \li \b Functionality: Read only parameter for reteiving the number of 16-bit RF samples.
+/// \li \b Type: Integer
+/// \li \b Units: Samples
+/// \li \b Range: Depends on imaging depth and RF decimation.
+///@note    The RF sample count can also be determined by the following formula:\n
+///         \code NumSamples = ((ImageRect.bottom - ImageRect.top) * 40000) / (SamplingFrequency / 1000) \endcode
+////////////////////////////////////////////////////////////////////////////////
+#define prmRfNumSamples "porta-rfsamples"
+////////////////////////////////////////////////////////////////////////////////
+/// Color Doppler Line Count:
+/// \li \b Functionality: Read only parameter for retreiving the number of Color lines, including ensemble.
+/// \li \b Type: Integer
+/// \li \b Units: Scanlines
+/// \li \b Range: Depends on color box width, line density, and ensemble.
+///
+////////////////////////////////////////////////////////////////////////////////
+#define prmColorNumLines "porta-colorlines"
+////////////////////////////////////////////////////////////////////////////////
+/// Color Doppler Sample Count:
+/// \li \b Functionality: Read only parameter for reteiving the number of 16-bit color RF samples.
+/// \li \b Type: Integer
+/// \li \b Units: Samples
+/// \li \b Range: Depends on color box height and RF decimation for color mode.
+//
+////////////////////////////////////////////////////////////////////////////////
+#define prmColorNumSamples "porta-colorsamples"
+////////////////////////////////////////////////////////////////////////////////
+/// Positive Voltage Level:
+/// \li \b Functionality: The actual positive voltage of the current setting.
+/// \li \b Type: Integer
+/// \li \b Units: Volts
+/// \li \b Range: 0 - 100
+///
+////////////////////////////////////////////////////////////////////////////////
+#define prmVoltageLevelPos "porta-vpos"
+////////////////////////////////////////////////////////////////////////////////
+/// Negative Voltage Level:
+/// \li \b Functionality: The actual negative voltage of the current setting.
+/// \li \b Type: Integer
+/// \li \b Units: Volts
+/// \li \b Range: -0 - -100
+///
+////////////////////////////////////////////////////////////////////////////////
+#define prmVoltageLevelNeg "porta-vneg"

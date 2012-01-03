@@ -53,8 +53,8 @@
     <ClInclude Include="DisplayCallbackEventArgs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ImagingParameter.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="porta_def.h">
+      <Filter>Porta References</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

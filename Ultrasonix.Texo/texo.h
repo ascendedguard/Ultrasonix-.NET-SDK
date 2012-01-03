@@ -1,112 +1,66 @@
 #pragma once
 
 #ifdef EXPORT_TEXO
-    #define texolinkage __declspec(dllexport)
+    #define texoL __declspec(dllexport)
 #elif defined IMPORT_TEXO
-    #define texolinkage __declspec(dllimport)
+    #define texoL __declspec(dllimport)
 #else
-    #define texolinkage
+    #define texoL
 #endif
 
 #include "texo_def.h"
 
-////////////////////////////////////////////////////////////////////////////////
-/// texo is an API that can build a custom sequence of individually programmable
-/// scanlines.
-///
-/// Features:
-/// - Takes full advantage of Ultrasonix programmable ultrasound engine
-/// - Support for all Ultrasonix transducers
-/// - 63 MB of cine storage
-/// - Programmable with up to 2048 scanlines
-/// - Blank lines supported for full PRF control
-/// - Acquisition Control:
-///   - Start / Stop imaging
-///   - Access to realtime incoming data while imaging
-///   - Access to cine buffer data once frozen
-/// - I/O synchronization control
-/// - Data formats include:
-///   - RF (16 bit @ 40 MHz)
-///   - Envelope Detected (16 bit @ 40 MHz)
-///   - Envelope Detected (8 bit after custom compression table applied)
-/// - Global Parameters:
-///   - Up to TGC curves
-///   - Positive and negative transmit power values
-///   - Programmable compression table for 8 bit envelope detected data
-/// - Transmit Scanline Parameters:
-///   - Center element
-///   - Aperture
-///   - Focus distance
-///   - Angle
-///   - Frequency
-///   - Pulse shape
-///   - Support for manually entered time delays
-/// - Receive Scanline Parameters:
-///   - Center element
-///   - Aperture
-///   - Focus distance (*)
-///   - Aperture opening maximum depth (*)
-///   - Speed of sound (*)
-///   - Acquisition depth
-///   - Channel masking within aperture
-///   - Boolean option to turn off time delays
-///   - Support for manually entered time delays
-///   - Custom line duration
-///   - Scanline digital gain
-///   - TGC selection
-///
-/// (*) for time delay calculations
-////////////////////////////////////////////////////////////////////////////////
-class texolinkage texo
-{
-public:
-    texo();
-    ~texo();
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-    bool init(const char* firmwarePath, int pci, int usm, int hv, int channels, int tx = 3, int szCine = 128);
-    bool shutdown();
+texoL int texoInit(const char* firmwarePath, int pci, int usm, int hv, int channels, int tx = 3, int szCine = 128);
+texoL void texoShutdown();
+texoL int texoIsInitialized();
+texoL int texoIsImaging();
 
-    bool isInitialized() const;
-    bool isImaging() const;
+texoL int texoActivateProbeConnector(int connector);
+texoL int texoGetProbeName(int connector, char* name, int len);
+texoL int texoGetProbeCode(int connector);
+texoL int texoGetProbeNumElements();
+texoL int texoGetProbeCenterFreq();
+texoL int texoGetProbeHasMotor();
+texoL int texoGetProbeFOV();
 
-    bool activateProbeConnector(int connector);
-    bool getProbeName(int connector, char* name, int len);
-    int getProbeCode(int connector);
-    int getProbeNumElements();
-    int getProbeCenterFreq();
-    int getProbeFOV();
+texoL int texoBeginSequence();
+texoL int texoAddLine(_texoTransmitParams txPrms, _texoReceiveParams rxPrms, _texoLineInfo& lineInfo);
+texoL int texoEndSequence();
 
-    bool beginSequence();
-    int addLine(texoDataFormat format, texoTransmitParams txPrms, texoReceiveParams rxPrms);
-    int endSequence();
+texoL void texoClearTGCs();
+texoL int texoAddTGCFixed(double percent);
+texoL int texoAddTGC(_texoCurve* tgc, int depth);
+texoL int texoAddReceive(_texoReceiveParams rxPrms);
+texoL int texoAddTransmit(_texoTransmitParams txPrms);
+texoL int texoSetPower(int power, int maxPositive, int maxNegative);
+texoL void texoSetVCAInfo(_vcaInfo vcaInfo);
 
-    void clearTGCs();
-    bool addTGC(double percent);
-    bool addTGC(CURVE* tgc, int depth);
-    bool addReceive(texoReceiveParams rxPrms);
-    bool addTransmit(texoTransmitParams txPrms);
-    bool setPower(int power, int maxPositive, int maxNegative);
-    void setVCAInfo(VCAInfo vcaInfo);
+texoL int texoRunImage();
+texoL int texoStopImage();
+texoL void texoSetCallback(TEXO_CALLBACK fn, void* prm);
 
-    bool runImage();
-    bool stopImage();
-    void setCallback(TEXO_CALLBACK fn, void* prm);
+texoL double texoGetFrameRate();
+texoL int texoGetFrameSize();
+texoL int texoGetMaxFrameCount();
+texoL int texoGetCollectedFrameCount();
+texoL unsigned char* texoGetCineStart(unsigned int blockid);
 
-    double getFrameRate();
-    int getFrameSize();
-    int getMaxFrameCount();
-    int getCollectedFrameCount();
-    unsigned char* getCineStart(unsigned int blockid);
+texoL int texoSetDelayReadBack(const char* file);
+texoL void texoCloseDelayReadBack();
 
-    bool setDelayReadBack(const char* file);
-    void closeDelayReadBack();
+texoL void texoSetSyncSignals(int input, int output, int output2);
+texoL void texoEnableSyncNotify(int enable);
 
-    bool setSyncSignals(int input, int output, int output2);
-    bool enableSyncNotify(bool enable);
+texoL int texoSetupMotor(int enable, int fpv, int spf);
+texoL double texoGoToPosition(double angle);
+texoL double texoStepMotor(int cw, int steps);
 
-    bool setupMotor(bool enable, int fpv, int spf);
-    double goToPosition(double angle);
-    double stepMotor(bool cw, int steps);
+texoL void texoForceConnector(int conn);
 
-    void forceConnector(int conn);
-};
+#ifdef __cplusplus
+}
+#endif

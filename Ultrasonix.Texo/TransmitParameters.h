@@ -20,15 +20,15 @@ namespace Ultrasonix
 				bool useManualDelays;
 				array<int>^ manualDelays;
 				int tableIndex;
-				bool useDeadElements;
-				array<int>^ deadElements;
-				bool useTransmitExtension;
+				bool useMask;
+				array<int>^ mask;
+				bool sync;
 
 			public:
 				TransmitParameters()
 				{
 					manualDelays = gcnew array<int>(129);
-					deadElements = gcnew array<int>(128);
+					mask = gcnew array<int>(128);
 				}
 
 				/// <summary> Gets or sets the center element, in 1/10th of an element. </summary>
@@ -96,28 +96,28 @@ namespace Ultrasonix
 					void set(int value) { this->tableIndex = value; }
 				}
 
-				property bool UseDeadElements
+				property bool UseMask
 				{
-					bool get() { return this->useDeadElements; }
-					void set(bool value) { this->useDeadElements = value; }
+					bool get() { return this->useMask; }
+					void set(bool value) { this->useMask = value; }
 				}
 
-				property array<int>^ DeadElements
+				property array<int>^ Mask
 				{
-					array<int>^ get() { return this->deadElements; }
+					array<int>^ get() { return this->mask; }
 				}
 
-				property bool UseTransmitExtension
+				property bool Sync
 				{
-					bool get() { return this->useTransmitExtension; }
-					void set(bool value) { this->useTransmitExtension = value; }
+					bool get() { return this->sync; }
+					void set(bool value) { this->sync = value; }
 				}
 
 			internal:
 
-				texoTransmitParams ConvertToC()
+				_texoTransmitParams ConvertToC()
 				{
-					texoTransmitParams tx;
+					_texoTransmitParams tx;
 
 					tx.centerElement = this->CenterElement;
 					tx.aperture = this->Aperture;
@@ -143,16 +143,16 @@ namespace Ultrasonix
 					}
 
 					tx.tableIndex = this->TableIndex;
-					tx.useDeadElements = this->UseDeadElements;
+					tx.useMask = this->UseMask;
 
-					array<int>^ el = this->DeadElements;
+					array<int>^ el = this->Mask;
 
 					for(int i = 0 ; i < 128; i++)
 					{
-						tx.deadElements[i] = el[i];
+						tx.mask[i] = el[i];
 					}
 
-					tx.trex = this->UseTransmitExtension;
+					tx.sync = this->Sync;
 
 					return tx;
 				}

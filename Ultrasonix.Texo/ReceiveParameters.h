@@ -150,9 +150,9 @@ namespace Ultrasonix
 
 			internal:
 
-				texoReceiveParams ConvertToC()
+				_texoReceiveParams ConvertToC()
 				{
-					texoReceiveParams rx;
+					_texoReceiveParams rx;
 
 					rx.centerElement = this->CenterElement;
 					rx.aperture = this->Aperture;

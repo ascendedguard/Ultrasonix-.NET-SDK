@@ -5,4 +5,5 @@
 #pragma once
 
 #include "texo.h"
+#include "texo_def.h"
 #include "VCAInfo.h"

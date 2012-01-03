@@ -6,7 +6,7 @@
 
 using namespace Ultrasonix::Texo;
 
-bool DataCallback(void* sender, unsigned char* data, int index)
+int DataCallback(void* sender, unsigned char* data, int index)
 {
 	// Need to verify what the final int is used for.
 	// It shouldn't be a frame index in Texo, and may not be necessary.
@@ -15,5 +15,5 @@ bool DataCallback(void* sender, unsigned char* data, int index)
 	Texo^ texo = static_cast<Texo^>(GCHandle::operator GCHandle(IntPtr(sender)).Target);
 	texo->RaiseDataReceived(IntPtr(data));
 
-	return true;
+	return 1;
 }

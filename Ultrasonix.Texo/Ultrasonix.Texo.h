@@ -16,7 +16,7 @@
 using namespace System;
 using namespace System::Runtime::InteropServices;
 
-bool DataCallback(void* sender, unsigned char* data, int index);
+int DataCallback(void* sender, unsigned char* data, int index);
 
 namespace Ultrasonix 
 {
@@ -24,7 +24,6 @@ namespace Ultrasonix
 	{
 		public ref class Texo
 		{
-			private: texo* tex;
 			private: GCHandle objHandle;
 
 			public: virtual event EventHandler<DataEventArgs^>^ DataReceived;
@@ -32,20 +31,16 @@ namespace Ultrasonix
 			/// <summary> Creates a new instance of a Texo object. </summary>
 			public: Texo()
 			{
-				tex = new texo();
-
 				// We must hold the reference to be able to free after Texo is deallocated.
 				objHandle = System::Runtime::InteropServices::GCHandle::Alloc(this);
 				IntPtr ptr = System::Runtime::InteropServices::GCHandle::ToIntPtr(objHandle);
 
-				tex->setCallback(DataCallback, ptr.ToPointer());
+				texoSetCallback(DataCallback, ptr.ToPointer());
 			}
 
 			/// <summary> Deletes the texo instance and frees up object resources. </summary>
 			~Texo()
 			{
-				delete tex;
-
 				objHandle.Free();
 			}
 
@@ -66,7 +61,7 @@ namespace Ultrasonix
 
 				IntPtr pFirmwarePath = Marshal::StringToHGlobalAnsi(firmwarePath);
 
-				bool result = tex->init((char*)pFirmwarePath.ToPointer(), pci, usm, hv, channels);
+				bool result = texoInit((char*)pFirmwarePath.ToPointer(), pci, usm, hv, channels);
 
 				Marshal::FreeHGlobal(pFirmwarePath);
 
@@ -83,7 +78,7 @@ namespace Ultrasonix
 				bool result;
 				try
 				{
-					result = tex->init((char*)pFirmwarePath.ToPointer(), pci, usm, hv, channels, tx);
+					result = texoInit((char*)pFirmwarePath.ToPointer(), pci, usm, hv, channels, tx);
 				}
 				finally
 				{
@@ -101,37 +96,37 @@ namespace Ultrasonix
 
 				IntPtr pFirmwarePath = Marshal::StringToHGlobalAnsi(firmwarePath);
 
-				bool result = tex->init((char*)pFirmwarePath.ToPointer(), pci, usm, hv, channels, tx, sizeCine);
+				bool result = texoInit((char*)pFirmwarePath.ToPointer(), pci, usm, hv, channels, tx, sizeCine);
 
 				Marshal::FreeHGlobal(pFirmwarePath);
 
 				return result;
 			}
 
-			public: bool Shutdown()
+			public: void Shutdown()
 			{
-				return tex->shutdown();
+				texoShutdown();
 			}
 
 			public: bool IsInitialized()
 			{
-				return tex->isInitialized();
+				return texoIsInitialized();
 			}
 
 			public: bool IsImaging()
 			{
-				return tex->isImaging();
+				return texoIsImaging();
 			}
 
 			public: bool ActivateProbeConnector(int connector)
 			{
-				return tex->activateProbeConnector(connector);
+				return texoActivateProbeConnector(connector);
 			}
 
 			public: String^ GetProbeName(int connector)
 			{
 				char* name = new char[20];
-				bool result = tex->getProbeName(connector, name, 20);
+				bool result = texoGetProbeName(connector, name, 20);
 
 				String^ nameStr = Marshal::PtrToStringAnsi(IntPtr(name));
 
@@ -144,40 +139,42 @@ namespace Ultrasonix
 
 			public: int GetProbeCode(int connector)
 			{
-				return tex->getProbeCode(connector);
+				return texoGetProbeCode(connector);
 			}
 
 			public: int GetProbeNumElements()
 			{
-				return tex->getProbeNumElements();
+				return texoGetProbeNumElements();
 			}
 
 			public: int GetProbeCenterFreq()
 			{
-				return tex->getProbeCenterFreq();
+				return texoGetProbeCenterFreq();
 			}
 
 			public: int GetProbeFOV()
 			{
-				return tex->getProbeFOV();
+				return texoGetProbeFOV();
 			}
 
 			public: bool BeginSequence()
 			{
-				return tex->beginSequence();
+				return texoBeginSequence();
 			}
 
-			public: int AddLine(DataFormat format, TransmitParameters^ txPrms, ReceiveParameters^ rxPrms)
+			public: int AddLine(TransmitParameters^ txPrms, ReceiveParameters^ rxPrms)
 			{
-				texoTransmitParams tx = txPrms->ConvertToC();
-				texoReceiveParams rx = rxPrms->ConvertToC();
+				_texoTransmitParams tx = txPrms->ConvertToC();
+				_texoReceiveParams rx = rxPrms->ConvertToC();
 
-				return tex->addLine((texoDataFormat)format, tx, rx);
+				_texoLineInfo format; // Output
+
+				return texoAddLine(tx, rx, format);
 			}
 
 			public: bool EndSequence()
 			{
-				int result = tex->endSequence();
+				int result = texoEndSequence();
 
 				if (result == -1)
 				{
@@ -189,27 +186,24 @@ namespace Ultrasonix
 
 			public: void ClearTGCs()
 			{
-				tex->clearTGCs();
+				texoClearTGCs();
 			}
 
 			public: bool AddTGC(double percent)
 			{
-				return tex->addTGC(percent);
+				return texoAddTGCFixed(percent);
 			}
 
 			public: bool AddTGC(Curve^ tgc, int depth)
 			{
-				CURVE* cv = new CURVE();
+				_texoCurve cv;
 
-				cv->top = tgc->Top;
-				cv->mid = tgc->Middle;
-				cv->btm = tgc->Bottom;
-				cv->vmid = tgc->VerticalMiddle;
+				cv.top = tgc->Top;
+				cv.mid = tgc->Middle;
+				cv.btm = tgc->Bottom;
+				cv.vmid = tgc->VerticalMiddle;
 
-				bool result = tex->addTGC(cv, depth);
-
-				// Hopefully this is alright.
-				delete cv;
+				bool result = texoAddTGC(&cv, depth);
 
 				return result;
 			}
@@ -221,9 +215,9 @@ namespace Ultrasonix
 					throw gcnew ArgumentNullException("param");
 				}
 
-				texoReceiveParams rx = param->ConvertToC();
+				_texoReceiveParams rx = param->ConvertToC();
 
-				return tex->addReceive(rx);
+				return texoAddReceive(rx);
 			}
 
 			public: bool AddTransmit(TransmitParameters^ param)
@@ -233,14 +227,14 @@ namespace Ultrasonix
 					throw gcnew ArgumentNullException("param");
 				}
 
-				texoTransmitParams tx = param->ConvertToC();
+				_texoTransmitParams tx = param->ConvertToC();
 
-				return tex->addTransmit(tx);
+				return texoAddTransmit(tx);
 			}
 
 			public: bool SetPower(int power, int maxPositive, int maxNegative)
 			{
-				return tex->setPower(power, maxPositive, maxNegative);
+				return texoSetPower(power, maxPositive, maxNegative);
 			}
 
 			public: void SetVCAInfo(VCAInformation^ information)
@@ -250,7 +244,7 @@ namespace Ultrasonix
 					throw gcnew ArgumentNullException("information");
 				}
 
-				VCAInfo info;
+				_vcaInfo info;
 
 				info.amplification = information->Amplification;
 				info.activetermination = information->ActiveTermination;
@@ -261,44 +255,44 @@ namespace Ultrasonix
 				info.hpfDigitalEnable = information->HpfDigitalEnable;
 				info.hpfDigitalValue = information->HpfDigitalValue;
 
-				tex->setVCAInfo(info);
+				texoSetVCAInfo(info);
 			}
 
 			public: bool RunImage()
 			{
-				return tex->runImage();
+				return texoRunImage();
 			}
 
 			public: bool StopImage()
 			{
-				return tex->stopImage();
+				return texoStopImage();
 			}
 
 			// TODO: Implement SetCallback as a .NET Event
 
 			public: double GetFrameRate()
 			{
-				return tex->getFrameRate();
+				return texoGetFrameRate();
 			}
 
 			public: int GetFrameSize()
 			{
-				return tex->getFrameSize();
+				return texoGetFrameSize();
 			}
 
 			public: int GetMaxFrameCount()
 			{
-				return tex->getMaxFrameCount();
+				return texoGetMaxFrameCount();
 			}
 
 			public: int GetCollectedFrameCount()
 			{
-				return tex->getCollectedFrameCount();
+				return texoGetCollectedFrameCount();
 			}
 
 			public: IntPtr GetCineStart(int blockid)
 			{
-				unsigned char* c = tex->getCineStart(blockid);
+				unsigned char* c = texoGetCineStart(blockid);
 				return IntPtr(c);
 			}
 
@@ -306,7 +300,7 @@ namespace Ultrasonix
 			{
 				IntPtr pFile = Marshal::StringToHGlobalAnsi(file);
 
-				bool result = tex->setDelayReadBack((char*)pFile.ToPointer());
+				bool result = texoSetDelayReadBack((char*)pFile.ToPointer());
 
 				Marshal::FreeHGlobal(pFile);
 
@@ -315,37 +309,37 @@ namespace Ultrasonix
 
 			public: void CloseDelayReadBack()
 			{
-				tex->closeDelayReadBack();
+				texoCloseDelayReadBack();
 			}
 
-			public: bool SetSyncSignals(int input, int output, int output2)
+			public: void SetSyncSignals(int input, int output, int output2)
 			{
-				return tex->setSyncSignals(input, output, output2);
+				texoSetSyncSignals(input, output, output2);
 			}
 
-			public: bool EnableSyncNotify(bool enable)
+			public: void EnableSyncNotify(bool enable)
 			{
-				return tex->enableSyncNotify(enable);
+				texoEnableSyncNotify(enable);
 			}
 
 			public: bool SetupMotor(bool enable, int fpv, int spf)
 			{
-				return tex->setupMotor(enable, fpv, spf);
+				return texoSetupMotor(enable, fpv, spf);
 			}
 
 			public: double GoToPosition(double angle)
 			{
-				return tex->goToPosition(angle);
+				return texoGoToPosition(angle);
 			}
 
 			public: double StepMotor(bool cw, int steps)
 			{
-				return tex->stepMotor(cw, steps);
+				return texoStepMotor(cw, steps);
 			}
 
 			public: void ForceConnector(int conn)
 			{
-				return tex->forceConnector(conn);
+				return texoForceConnector(conn);
 			}
 		};
 	}

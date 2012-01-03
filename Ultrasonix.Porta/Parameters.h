@@ -76,6 +76,14 @@ namespace Ultrasonix
 			static const String^ MotorFrames = prmMotorFrames;
 			static const String^ MotorSteps = prmMotorSteps;
 			static const String^ MotorStatus = prmMotorStatus;
+			static const String^ BNumLines = prmBNumLines;
+			static const String^ BNumSamples = prmBNumSamples;
+			static const String^ RfNumLines = prmRfNumLines;
+			static const String^ RfNumSamples = prmRfNumSamples;
+			static const String^ ColorNumLines = prmColorNumLines;
+			static const String^ ColorNumSamples = prmColorNumSamples;
+			static const String^ VoltageLevelPos = prmVoltageLevelPos;
+			static const String^ VoltageLevelNeg = prmVoltageLevelNeg;
 		};
 	}
 }

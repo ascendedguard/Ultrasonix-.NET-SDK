@@ -8,18 +8,15 @@
 #include "ParamTypes.h"
 #include "RawDataEventArgs.h"
 #include "DisplayCallbackEventArgs.h"
-
 #include "PortaImagingException.h"
-
-#include "ImagingParameter.h"
 
 using namespace System;
 using namespace System::Runtime::InteropServices;
 using namespace System::Collections::Generic;
 
-bool PreRunCallback(void*);
-bool RawDataCallback(void* param, unsigned char* data, int cineBlock, int header);
-bool DisplayCallback(void* prm, int id, int header);
+int PreRunCallback(void*);
+int RawDataCallback(void* param, unsigned char* data, int cineBlock, int header);
+int DisplayCallback(void* prm, int id, int header);
 
 namespace Ultrasonix
 {
@@ -28,7 +25,6 @@ namespace Ultrasonix
 		public ref class Porta
 		{
 			private:
-				porta* po;
 				GCHandle objHandle;
 				
 				// Used to cache the display dimensions when calling local imaging functions.
@@ -57,14 +53,11 @@ namespace Ultrasonix
 
 				Porta()
 				{
-					this->po = new porta();
 					displayDimensions = gcnew Dictionary<int, Size^>();
 				}
 			
 				~Porta()
 				{
-					delete po;
-
 					objHandle.Free();
 				}
 
@@ -79,7 +72,7 @@ namespace Ultrasonix
 
 					try
 					{
-						result = po->init(cineSize,
+						result = portaInit(cineSize,
 								(char*)pFirmwarePath.ToPointer(),
 								(char*)pSettingsPath.ToPointer(),
 								(char*)pLicensePath.ToPointer(),
@@ -101,21 +94,22 @@ namespace Ultrasonix
 					return result;
 				}
 
-				bool Shutdown()
+				void Shutdown()
 				{
-					return po->shutdown();
+					portaShutdown();
 				}
 
 				bool IsConnected()
 				{
-					return po->isConnected();
+					return portaIsConnected();
 				}
 
+				/* Function is gone from latest SDK
 				String^ GetLastError()
 				{
 					char* err = new char[128];
 
-					bool result = po->getLastError(err, 128);
+					bool result = portaGetLastError(err, 128);
 
 					// Throw exception if result == false
 
@@ -125,12 +119,13 @@ namespace Ultrasonix
 
 					return errStr;
 				}
+				*/
 
 				String^ GetSystemId()
 				{
 					char* sysId = new char[128];
 
-					bool result = po->getLastError(sysId, 128);
+					bool result = portaGetSystemId(sysId, 128);
 
 					// Throw exception if result == false
 
@@ -143,24 +138,25 @@ namespace Ultrasonix
 
 				bool SignalBnc()
 				{
-					return po->signalBnc();
+					return portaSignalBnc();
 				}
 
 				bool PollBnc()
 				{
-					return po->pollBnc();
+					return portaPollBnc();
 				}
 
 				bool AckBnc()
 				{
-					return po->ackBnc();
+					return portaAckBnc();
 				}
 
+				/* Missing from latest SDK
 				array<char>^ ReadEPROM(int size)
 				{
 					char* d = new char[size];
 
-					int result = po->readEPROM(d, size);
+					int result = portaReadEPROM(d, size);
 
 					array<char>^ data = gcnew array<char>(size);
 
@@ -184,37 +180,38 @@ namespace Ultrasonix
 						d[i] = data[i];
 					}
 
-					int result = po->writeEPROM(d, size);
+					int result = portaWriteEPROM(d, size);
 
 					delete[] d;
 
 					return result;
 				}
+				*/
 
 				bool SelectProbe(int id)
 				{
-					return po->selectProbe(id);
+					return portaSelectProbe(id);
 				}
 
 				int GetCurrentProbeId()
 				{
-					return po->getCurrentProbeID();
+					return portaGetCurrentProbeID();
 				}
 
 				int GetProbeId(int connector)
 				{
-					return po->getProbeID(connector);
+					return portaGetProbeID(connector);
 				}
 
 				bool ActivateProbeConnector(int connector)
 				{
-					return po->activateProbeConnector(connector);
+					return portaActivateProbeConnector(connector);
 				}
 
 				String^ GetProbeName(int id)
 				{
 					char* probeName = new char[128];
-					bool result = po->getProbeName(probeName, 128, id);
+					bool result = portaGetProbeName(probeName, 128, id);
 
 					// Throw exception if result is false.
 
@@ -229,7 +226,7 @@ namespace Ultrasonix
 				{
 					probeInfo info;
 
-					po->getProbeInfo(info);
+					portaGetProbeInfo(info);
 
 					ProbeInfo^ p = gcnew ProbeInfo();
 					p->Elements = info.elements;
@@ -246,7 +243,7 @@ namespace Ultrasonix
 
 				bool TestElectronicComponent(int id)
 				{
-					return po->testElectronicComponent(id);
+					return portaTestElectronicComponent(id);
 				}
 			
 				// TODO: Implement testProbeElements
@@ -255,82 +252,80 @@ namespace Ultrasonix
 
 				bool RunImage()
 				{
-					return po->runImage();
+					return portaRunImage();
 				}
 
 				bool StopImage()
 				{
-					return po->stopImage();
+					return portaStopImage();
 				}
 
 				bool IsImaging()
 				{
-					return po->isImaging();
+					return portaIsImaging();
 				}
 
 				bool SetWatchdog(int timeout)
 				{
-					return po->setWatchdog(timeout);
+					return portaSetWatchdog(timeout);
 				}
 
 				bool SetCustomDMA(bool enable, int physicaladdress, int size)
 				{
-					return po->setCustomDMA(enable, physicaladdress, size);
+					return portaSetCustomDMA(enable, physicaladdress, size);
 				}
 
-				bool SetSleepDelay(int delay)
+				void SetSleepDelay(int delay)
 				{
-					return po->setSleepDelay(delay);
+					portaSetSleepDelay(delay);
 				}
 
 				bool InitImagingMode(ImagingMode mode)
 				{
-					return po->initImagingMode((imagingMode)mode);
+					return portaInitMode((imagingMode)mode);
 				}
 
 				ImagingMode GetCurrentMode()
 				{
-					return (ImagingMode)po->getCurrentMode();
+					return (ImagingMode)portaGetCurrentMode();
 				}
 				
 				void StartRawDataCallback()
 				{
 					IntPtr ptr = System::Runtime::InteropServices::GCHandle::ToIntPtr(objHandle);
 
-					this->po->setRawDataCallback(RawDataCallback, ptr.ToPointer());
+					portaSetRawDataCallback(RawDataCallback, ptr.ToPointer());
 				}
 
 				void StartPreRunCallback()
 				{
 					IntPtr ptr = System::Runtime::InteropServices::GCHandle::ToIntPtr(objHandle);
 
-					this->po->setPreRunCallback(PreRunCallback, ptr.ToPointer());
+					portaSetPreRunCallback(PreRunCallback, ptr.ToPointer());
 				}
 
-				bool StartDisplayCallback(int frameIndex)
+				void StartDisplayCallback(int frameIndex)
 				{
 					IntPtr ptr = System::Runtime::InteropServices::GCHandle::ToIntPtr(objHandle);
 
-					return po->setDisplayCallback(frameIndex, DisplayCallback, ptr.ToPointer());
+					portaSetDisplayCallback(frameIndex, DisplayCallback, ptr.ToPointer());
 				}
-
-				// TODO: Implement event for DisplayCallback
 
 				int GetFrameCount(int index)
 				{
-					return po->getFrameCount(index);
+					return portaGetFrameCount(index);
 				}
 
 				bool LoadMasterPreset()
 				{
-					return po->loadMasterPreset();
+					return portaLoadMasterPreset();
 				}
 
 				bool LoadPreset(String^ path)
 				{
 					IntPtr pPath = Marshal::StringToHGlobalAnsi(path);
 
-					bool result = po->loadPreset((char*)pPath.ToPointer());
+					bool result = portaLoadPreset((char*)pPath.ToPointer());
 
 					Marshal::FreeHGlobal(pPath);
 
@@ -341,28 +336,25 @@ namespace Ultrasonix
 				{
 					IntPtr pPath = Marshal::StringToHGlobalAnsi(path);
 
-					bool result = po->savePreset((char*)pPath.ToPointer(), overwrite);
+					bool result = portaSavePreset((char*)pPath.ToPointer(), overwrite);
 
 					Marshal::FreeHGlobal(pPath);
 
 					return result;
 				}
 
-				bool IsMasterPreset()
-				{
-					return po->isMasterPreset();
-				}
-
+				/* Missing from latest SDK
 				bool IsFactoryPreset()
 				{
-					return po->isFactoryPreset();
+					return portaIsFactoryPreset();
 				}
+				*/
 
 				String^ FindMasterPreset(int probe)
 				{
 					char* probePath = new char[512];
 
-					po->findMasterPreset(probePath, 512, probe);
+					portaFindMasterPreset(probePath, 512, probe);
 
 					String^ probePathStr = Marshal::PtrToStringAnsi(IntPtr(probePath));
 
@@ -375,7 +367,7 @@ namespace Ultrasonix
 				{
 					IntPtr pPath = Marshal::StringToHGlobalAnsi(path);
 
-					bool result = po->isMasterPreset((char*)pPath.ToPointer());
+					bool result = portaIsMasterPreset((char*)pPath.ToPointer());
 
 					Marshal::FreeHGlobal(pPath);
 
@@ -388,7 +380,7 @@ namespace Ultrasonix
 
 					IntPtr pPath = Marshal::StringToHGlobalAnsi(path);
 
-					bool result = po->getPresetProbeID((char*)pPath.ToPointer(), id1, id2, id3);
+					bool result = portaGetPresetProbeID((char*)pPath.ToPointer(), id1, id2, id3);
 
 					Marshal::FreeHGlobal(pPath);
 
@@ -398,28 +390,24 @@ namespace Ultrasonix
 
 					return result;
 				}
-				// TODO: Implement getPresetProbeID
 
 				int GetFrameRate()
 				{
-					return po->getFrameRate();
+					return portaGetFrameRate();
 				}
 
 				int GetDataFrameRate()
 				{
-					return po->getDataFrameRate();
-				}
-
-				int GetParam(ImagingParameter param)
-				{
-					return po->getParam((imagingParams)param);
+					return portaGetDataFrameRate();
 				}
 
 				int GetParam(String^ param)
 				{
 					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
 
-					int result = po->getParam((char*)pParam.ToPointer());
+					int result;
+
+					portaGetParamI((char*)pParam.ToPointer(), result);
 
 					Marshal::FreeHGlobal(pParam);
 
@@ -430,7 +418,7 @@ namespace Ultrasonix
 				{
 					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
 
-					bool result = po->setParam((char*)pParam.ToPointer(), value);
+					bool result = portaSetParamI((char*)pParam.ToPointer(), value);
 
 					Marshal::FreeHGlobal(pParam);
 
@@ -443,7 +431,7 @@ namespace Ultrasonix
 
 					char* buffer = new char[128];
 
-					bool result = po->getParam((char*)pParam.ToPointer(), buffer, 128);
+					bool result = portaGetParamS((char*)pParam.ToPointer(), buffer, 128);
 
 					Marshal::FreeHGlobal(pParam);
 
@@ -461,7 +449,7 @@ namespace Ultrasonix
 					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
 					IntPtr pValue = Marshal::StringToHGlobalAnsi(value);
 
-					bool result = po->setParam((char*)pParam.ToPointer(), (char*)pValue.ToPointer());
+					bool result = portaSetParamS((char*)pParam.ToPointer(), (char*)pValue.ToPointer());
 
 					Marshal::FreeHGlobal(pParam);
 					Marshal::FreeHGlobal(pValue);
@@ -471,10 +459,10 @@ namespace Ultrasonix
 
 				Rect^ GetParamRect(String^ param)
 				{
-					URect r;
+					portaRect r;
 
 					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
-					bool result = po->getParam((char*)pParam.ToPointer(), r);
+					bool result = portaGetParamR((char*)pParam.ToPointer(), r);
 					Marshal::FreeHGlobal(pParam);
 
 					Rect^ rect = gcnew Rect();
@@ -489,7 +477,7 @@ namespace Ultrasonix
 
 				bool SetParam(String^ param, Rect^ value)
 				{
-					URect r;
+					portaRect r;
 
 					r.top = value->Top;
 					r.left = value->Left;
@@ -497,7 +485,7 @@ namespace Ultrasonix
 					r.bottom = value->Bottom;
 
 					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
-					bool result = po->setParam((char*)pParam.ToPointer(), r);
+					bool result = portaSetParamR((char*)pParam.ToPointer(), r);
 					Marshal::FreeHGlobal(pParam);
 
 					return result;
@@ -505,10 +493,10 @@ namespace Ultrasonix
 
 				Point^ GetParamPoint(String^ param)
 				{
-					UPoint p;
+					portaPoint p;
 
 					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
-					bool result = po->getParam((char*)pParam.ToPointer(), p);
+					bool result = portaGetParamP((char*)pParam.ToPointer(), p);
 					Marshal::FreeHGlobal(pParam);
 
 					Point^ point = gcnew Point();
@@ -521,13 +509,13 @@ namespace Ultrasonix
 
 				bool SetParam(String^ param, Point^ value)
 				{
-					UPoint p;
+					portaPoint p;
 
 					p.x = value->X;
 					p.y = value->Y;
 
 					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
-					bool result = po->setParam((char*)pParam.ToPointer(), p);
+					bool result = portaSetParamP((char*)pParam.ToPointer(), p);
 					Marshal::FreeHGlobal(pParam);
 
 					return result;
@@ -535,10 +523,10 @@ namespace Ultrasonix
 
 				Curve^ GetParamCurve(String^ param)
 				{
-					UCurve c;
+					portaCurve c;
 
 					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
-					bool result = po->getParam((char*)pParam.ToPointer(), c);
+					bool result = portaGetParamC((char*)pParam.ToPointer(), c);
 					Marshal::FreeHGlobal(pParam);
 
 					Curve^ curve = gcnew Curve();
@@ -553,7 +541,7 @@ namespace Ultrasonix
 
 				bool SetParam(String^ param, Curve^ value)
 				{
-					UCurve c;
+					portaCurve c;
 
 					c.t = value->Top;
 					c.m = value->Middle;
@@ -561,7 +549,7 @@ namespace Ultrasonix
 					c.vm = value->VerticalMiddle;
 
 					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
-					bool result = po->setParam((char*)pParam.ToPointer(), c);
+					bool result = portaSetParamC((char*)pParam.ToPointer(), c);
 					Marshal::FreeHGlobal(pParam);
 
 					return result;
@@ -569,41 +557,41 @@ namespace Ultrasonix
 
 				GainCurve^ GetParamGainCurve(String^ param)
 				{
-					UGainCurve c;
+					portaGainCurve c;
 
 					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
-					bool result = po->getParam((char*)pParam.ToPointer(), c);
+					bool result = portaGetParamGC((char*)pParam.ToPointer(), c);
 					Marshal::FreeHGlobal(pParam);
 
 					GainCurve^ curve = gcnew GainCurve();
 
-					curve->Values[0] = c.val0;
-					curve->Values[1] = c.val1;
-					curve->Values[2] = c.val2;
-					curve->Values[3] = c.val3;
-					curve->Values[4] = c.val4;
-					curve->Values[5] = c.val5;
-					curve->Values[6] = c.val6;
-					curve->Values[7] = c.val7;
+					curve->Values[0] = c.val[0];
+					curve->Values[1] = c.val[1];
+					curve->Values[2] = c.val[2];
+					curve->Values[3] = c.val[3];
+					curve->Values[4] = c.val[4];
+					curve->Values[5] = c.val[5];
+					curve->Values[6] = c.val[6];
+					curve->Values[7] = c.val[7];
 
 					return curve;
 				}
 
 				bool SetParam(String^ param, GainCurve^ value)
 				{
-					UGainCurve c;
+					portaGainCurve c;
 
-					c.val0 = value->Values[0];
-					c.val1 = value->Values[1];
-					c.val2 = value->Values[2];
-					c.val3 = value->Values[3];
-					c.val4 = value->Values[4];
-					c.val5 = value->Values[5];
-					c.val6 = value->Values[6];
-					c.val7 = value->Values[7];
+					c.val[0] = value->Values[0];
+					c.val[1] = value->Values[1];
+					c.val[2] = value->Values[2];
+					c.val[3] = value->Values[3];
+					c.val[4] = value->Values[4];
+					c.val[5] = value->Values[5];
+					c.val[6] = value->Values[6];
+					c.val[7] = value->Values[7];
 
 					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
-					bool result = po->setParam((char*)pParam.ToPointer(), c);
+					bool result = portaSetParamGC((char*)pParam.ToPointer(), c);
 					Marshal::FreeHGlobal(pParam);
 
 					return result;
@@ -617,7 +605,7 @@ namespace Ultrasonix
 				bool CycleParam(String^ param, bool forward, bool wrap)
 				{
 					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
-					bool result = po->cycleParam((char*)pParam.ToPointer(), forward, wrap);
+					bool result = portaCycleParam((char*)pParam.ToPointer(), forward, wrap);
 					Marshal::FreeHGlobal(pParam);
 				
 					return result;
@@ -628,7 +616,7 @@ namespace Ultrasonix
 					int mn, mx;
 
 					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
-					bool result = po->getParamMinMax((char*)pParam.ToPointer(), mn, mx);
+					bool result = portaGetParamMinMax((char*)pParam.ToPointer(), mn, mx);
 					Marshal::FreeHGlobal(pParam);
 
 					min = mn;
@@ -639,10 +627,10 @@ namespace Ultrasonix
 
 				VariableType GetParamType(String^ param)
 				{
-					EVariableType t;
+					portaVarType t;
 
 					IntPtr pParam = Marshal::StringToHGlobalAnsi(param);
-					bool result = po->getParamType((char*)pParam.ToPointer(), t);
+					bool result = portaGetParamType((char*)pParam.ToPointer(), t);
 					Marshal::FreeHGlobal(pParam);
 
 					return (VariableType)t;
@@ -651,7 +639,7 @@ namespace Ultrasonix
 				String^ GetListParam(int prmNum)
 				{
 					char* name = new char[128];
-					bool result = po->getListParam(name, 128, prmNum);
+					bool result = portaGetListParam(name, 128, prmNum);
 
 					String^ n = Marshal::PtrToStringAnsi(IntPtr(name));
 					delete[] name;
@@ -661,20 +649,20 @@ namespace Ultrasonix
 		
 				int GetNumParams()
 				{
-					return po->getNumParams();
+					return portaGetNumParams();
 				}
 
 				bool SetDisplayDimensions(int index, int x, int y)
 				{
 					displayDimensions[index] = gcnew Size(x, y);
-					return po->setDisplayDimensions(index, x, y);
+					return portaSetDisplayDimensions(index, x, y);
 				}
 
 				bool GetDisplayDimensions(int index, [Out] int% x, [Out] int% y)
 				{
 					int xOut, yOut;
 
-					bool result = po->getDisplayDimensions(index, xOut, yOut);
+					bool result = portaGetDisplayDimensions(index, xOut, yOut);
 
 					x = xOut;
 					y = yOut;
@@ -686,7 +674,7 @@ namespace Ultrasonix
 				{
 					int xOut, yOut;
 
-					bool result = po->getPrescanBDimensions(index, xOut, yOut);
+					bool result = portaGetPrescanBDimensions(index, xOut, yOut);
 
 					w = xOut;
 					h = yOut;
@@ -697,14 +685,14 @@ namespace Ultrasonix
 				bool GetBwImagePrescan(int index, IntPtr data)
 				{
 					unsigned char* d = (unsigned char*)data.ToPointer();
-					return po->getBwImagePrescan(index, d);
+					return portaGetBwImagePrescan(index, d);
 				}
 
 				array<Byte>^ GetBwImagePrescan(int index)
 				{
 					// This should be based on the set size, not necessarily hard-coded.
 					int w, h;
-					po->getPrescanBDimensions(index, w, h);
+					portaGetPrescanBDimensions(index, w, h);
 					
 					int size = w * h;
 
@@ -712,7 +700,7 @@ namespace Ultrasonix
 					pin_ptr<Byte> p = &arr[0];
 					unsigned char* data = p;
 
-					bool result = po->getBwImagePrescan(index, data);
+					bool result = portaGetBwImagePrescan(index, data);
 
 					if (result == false)
 					{
@@ -737,7 +725,7 @@ namespace Ultrasonix
 					pin_ptr<Byte> p = &arr[0];
 					unsigned char* data = p;
 
-					bool result = po->getBwImage(index, data, useChroma);
+					bool result = portaGetBwImage(index, data, useChroma);
 
 					if (result == false)
 					{
@@ -750,7 +738,7 @@ namespace Ultrasonix
 				bool GetBwImage(int index, bool useChroma, IntPtr data)
 				{
 					unsigned char* d = (unsigned char*)data.ToPointer();
-					return po->getBwImage(index, d, useChroma);
+					return portaGetBwImage(index, d, useChroma);
 				}
 
 				array<Byte>^ GetColorImage(int index)
@@ -763,7 +751,7 @@ namespace Ultrasonix
 					pin_ptr<Byte> p = &arr[0];
 					unsigned char* data = p;
 
-					bool result = po->getColorImage(index, data);
+					bool result = portaGetColorImage(index, data);
 
 					if (result == false)
 					{
@@ -776,7 +764,7 @@ namespace Ultrasonix
 				bool GetColorImage(int index, IntPtr data)
 				{
 					unsigned char* d = (unsigned char*)data.ToPointer();
-					return po->getColorImage(index, d);
+					return portaGetColorImage(index, d);	
 				}
 
 				array<Byte>^ GetColorData(int index, bool velocity, bool prescan, bool copy)
@@ -788,7 +776,7 @@ namespace Ultrasonix
 					pin_ptr<Byte> p = &arr[0];
 					unsigned char* data = p;
 
-					bool result = po->getColorData(index, data, velocity, prescan, copy);
+					bool result = portaGetColorData(index, data, velocity, prescan, copy);
 
 					if (result == false)
 					{
@@ -801,7 +789,7 @@ namespace Ultrasonix
 				bool GetColorData(int index, bool velocity, bool prescan, bool copy, IntPtr data)
 				{
 					unsigned char* d = (unsigned char*)data.ToPointer();
-					return po->getColorData(index, d, velocity, prescan, copy);
+					return portaGetColorData(index, d, velocity, prescan, copy);
 				}
 
 				array<Byte>^ GetColorVV(int index)
@@ -813,7 +801,7 @@ namespace Ultrasonix
 					pin_ptr<Byte> p = &arr[0];
 					unsigned char* data = p;
 
-					bool result = po->getColorVV(index, data);
+					bool result = portaGetColorVV(index, data);
 
 					if (result == false)
 					{
@@ -826,17 +814,17 @@ namespace Ultrasonix
 				bool GetColorVV(int index, IntPtr data)
 				{
 					unsigned char* d = (unsigned char*)data.ToPointer();
-					return po->getColorVV(index, d);
+					return portaGetColorVV(index, d);
 				}
 
 				int GetDisplayFrameCount(int index)
 				{
-					return po->getDisplayFrameCount(index);
+					return portaGetDisplayFrameCount(index);
 				}
 
 				bool ProcessCineImage(int index, int frame)
 				{
-					return po->processCineImage(index, frame);
+					return portaProcessCineImage(index, frame);
 				}
 
 				bool ImportChromaMap(int index, array<int>^ lut)
@@ -849,7 +837,7 @@ namespace Ultrasonix
 						arr[i] = lut[i];
 					}
 
-					bool result = po->importChromaMap(index, arr);
+					bool result = portaImportChromaMap(index, arr);
 
 					delete[] arr;
 
@@ -866,7 +854,7 @@ namespace Ultrasonix
 						arr[i] = lut[i];
 					}
 
-					bool result = po->importColorMap(index, arr);
+					bool result = portaImportColorMap(index, arr);
 
 					delete[] arr;
 
@@ -877,7 +865,7 @@ namespace Ultrasonix
 				{
 					int x, y;
 
-					bool result = po->getMicronsPerPixel(index, x, y);
+					bool result = portaGetMicronsPerPixel(index, x, y);
 
 					mx = x;
 					my = y;
@@ -889,7 +877,7 @@ namespace Ultrasonix
 				{
 					int x, y;
 
-					bool result = po->getPixelCoordinates(index, line, sample, x, y, bColor, addAngle);
+					bool result = portaGetPixelCoordinates(index, line, sample, x, y, bColor, addAngle);
 
 					xOut = x;
 					yOut = y;
@@ -901,7 +889,7 @@ namespace Ultrasonix
 				{
 					int xo, yo;
 
-					bool result = po->getUltrasoundCoordinates(index, x, y, xo, yo, bColor, addAngle);
+					bool result = portaGetUltrasoundCoordinates(index, x, y, xo, yo, bColor, addAngle);
 
 					xOut = xo;
 					yOut = yo;
@@ -911,9 +899,9 @@ namespace Ultrasonix
 
 				Rect^ GetHorizontalArcRect(int index, bool color, bool top, int sampleOverride)
 				{
-					URect rect;
+					portaRect rect;
 
-					bool result = po->getHorizontalArcRect(index, rect, color, top, sampleOverride);
+					bool result = portaGetHorizontalArcRect(index, rect, color, top, sampleOverride);
 
 					// Throw exception if result == false
 
@@ -930,7 +918,7 @@ namespace Ultrasonix
 				{
 					int x, y;
 
-					bool result = po->getROI(index, &x, &y);
+					bool result = portaGetROI(index, &x, &y);
 
 					xOut = x;
 					yOut = y;
@@ -942,7 +930,7 @@ namespace Ultrasonix
 				{
 					int x, y;
 
-					bool result = po->getColorBox(index, &x, &y);
+					bool result = portaGetColorBox(index, &x, &y);
 
 					xOut = x;
 					yOut = y;
@@ -952,9 +940,9 @@ namespace Ultrasonix
 
 				Rect^ GetNewColorBox(int index, int x, int y, bool center)
 				{
-					URect rect;
+					portaRect rect;
 
-					bool result = po->getNewColorBox(index, x, y, rect, center);
+					bool result = portaGetNewColorBox(index, x, y, rect, center);
 
 					// Throw exception if result == false
 
@@ -969,32 +957,32 @@ namespace Ultrasonix
 			
 				int GetLinePosition(int index)
 				{
-					return po->getLinePosition(index);
+					return portaGetLinePosition(index);
 				}
 
 				double GoToPosition(double angle)
 				{
-					return po->goToPosition(angle);
+					return portaGoToPosition(angle);
 				}
 
 				double StepMotor(bool cw)
 				{
-					return po->stepMotor(cw);
+					return portaStepMotor(cw);
 				}
 
 				double StepMotor(bool cw, int steps)
 				{
-					return po->stepMotor(cw, steps);
+					return portaStepMotor(cw, steps);
 				}
 
 				void SetMotorHomeParams(int framesOffCenter)
 				{
-					return po->setMotorHomeParams(framesOffCenter);
+					return portaSetMotorHomeParams(framesOffCenter);
 				}
 
 				void SetMotorActive(bool run)
 				{
-					return po->setMotorActive(run);
+					return portaSetMotorActive(run);
 				}
 		};
 	}
