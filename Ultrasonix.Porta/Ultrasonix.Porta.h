@@ -8,6 +8,7 @@
 #include "ParamTypes.h"
 #include "RawDataEventArgs.h"
 #include "DisplayCallbackEventArgs.h"
+#include "ImagingParameter.h"
 
 #include "PortaImagingException.h"
 
@@ -314,8 +315,6 @@ namespace Ultrasonix
 					return po->setDisplayCallback(frameIndex, DisplayCallback, ptr.ToPointer());
 				}
 
-				// TODO: Implement event for DisplayCallback
-
 				int GetFrameCount(int index)
 				{
 					return po->getFrameCount(index);
@@ -398,7 +397,6 @@ namespace Ultrasonix
 
 					return result;
 				}
-				// TODO: Implement getPresetProbeID
 
 				int GetFrameRate()
 				{
