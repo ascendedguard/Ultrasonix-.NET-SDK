@@ -103,7 +103,7 @@ public:
     const unsigned char* getFrameAddress(int index, int frame);
     unsigned char* getCineStart(unsigned int blockid);
     void clearCine();
-    int getFrameSize();
+    int getFrameSize(int displayIndex);
 
     // preset functions
     bool loadMasterPreset();
