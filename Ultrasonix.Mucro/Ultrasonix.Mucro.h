@@ -68,7 +68,7 @@ namespace Ultrasonix
 				delete muc;
 			}
 
-			public: int Apply(array<Byte>^ input, [Out] array<Byte>^% output, int w, int h, FilterParameters^ params)
+			public: int Apply(array<Byte>^ input, [Out] array<Byte>^% output, int w, int h, FilterParameters^ parameters)
 			{
 				pin_ptr<Byte> p = &input[0];
 				unsigned char* in = p;
@@ -78,11 +78,11 @@ namespace Ultrasonix
 				unsigned char* outputArray = o;
 
 				FilterParams para;
-				para.asrSmooth =		params->Smooth;
-				para.asrWeight =		params->Weight;
-				para.asrContrast =		params->Contrast;
-				para.asrLPCut =			params->LPCut;
-				para.asrLineStrength =	params->LineStrength;
+				para.asrSmooth =		parameters->Smooth;
+				para.asrWeight =		parameters->Weight;
+				para.asrContrast =		parameters->Contrast;
+				para.asrLPCut =			parameters->LPCut;
+				para.asrLineStrength =	parameters->LineStrength;
 
 				int result = muc->apply(in, outputArray, w, h, para);
 
