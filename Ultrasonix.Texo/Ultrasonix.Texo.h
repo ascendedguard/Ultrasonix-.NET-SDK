@@ -169,6 +169,7 @@ namespace Ultrasonix
 
 				_texoLineInfo format; // Output
 
+				// TODO: Change output to return LineInfo object (need to convert to C#)
 				return texoAddLine(tx, rx, format);
 			}
 
