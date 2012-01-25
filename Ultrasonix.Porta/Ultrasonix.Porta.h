@@ -7,7 +7,7 @@
 #include "ImagingMode.h"
 #include "ParamTypes.h"
 #include "RawDataEventArgs.h"
-#include "DisplayCallbackEventArgs.h"
+#include "DisplayCallbackEventArgs.h"s
 #include "PortaImagingException.h"
 
 using namespace System;
