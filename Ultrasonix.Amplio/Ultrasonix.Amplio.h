@@ -67,7 +67,7 @@ namespace Ultrasonix
                 pin_ptr<short> pRF = &rfData[0];
 				short* rf = pRF;
 
-                array<Byte>^ out = gcnew array<Byte>(length / decimation);
+                array<Byte>^ out = gcnew array<Byte>(length / Math::Pow(2, decimation));
 				pin_ptr<Byte> o = &out[0];
 				unsigned char* outputArray = o;
 
