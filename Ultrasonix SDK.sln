@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ultrasonix.Texo", "Ultrason
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ultrasonix.Porta", "Ultrasonix.Porta\Ultrasonix.Porta.vcxproj", "{5C7B60F0-33B0-471D-A4E5-D475E439C062}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ultrasonix.Amplio", "Ultrasonix.Amplio\Ultrasonix.Amplio.vcxproj", "{A86926C6-AC9E-45EE-B23C-6482062F5BA8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,6 +21,10 @@ Global
 		{5C7B60F0-33B0-471D-A4E5-D475E439C062}.Debug|Win32.Build.0 = Debug|Win32
 		{5C7B60F0-33B0-471D-A4E5-D475E439C062}.Release|Win32.ActiveCfg = Release|Win32
 		{5C7B60F0-33B0-471D-A4E5-D475E439C062}.Release|Win32.Build.0 = Release|Win32
+		{A86926C6-AC9E-45EE-B23C-6482062F5BA8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A86926C6-AC9E-45EE-B23C-6482062F5BA8}.Debug|Win32.Build.0 = Debug|Win32
+		{A86926C6-AC9E-45EE-B23C-6482062F5BA8}.Release|Win32.ActiveCfg = Release|Win32
+		{A86926C6-AC9E-45EE-B23C-6482062F5BA8}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
