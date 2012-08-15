@@ -9,7 +9,6 @@
 #endif
 
 #include "porta_def.h"
-#include <vector>
 
 #ifdef __cplusplus
 extern "C" {
@@ -81,8 +80,8 @@ portaL int portaGetParamC(const char* prm, portaCurve& val);
 portaL int portaSetParamC(const char* prm, portaCurve val);
 portaL int portaGetParamGC(const char* prm, portaGainCurve& val);
 portaL int portaSetParamGC(const char* prm, portaGainCurve val);
-portaL int portaGetParamA(const char* prm, std::vector< int >& val);
-portaL int portaSetParamA(const char* prm, const std::vector< int > val);
+portaL int portaGetParamA(const char* prm, int* val, int* count);
+portaL int portaSetParamA(const char* prm, const int* val, int count);
 
 portaL int portaCycleParam(const char* prm, int fwd, int wrap = 0);
 portaL int portaGetParamMinMax(const char* prm, int& min, int& max);

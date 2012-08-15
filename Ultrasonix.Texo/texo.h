@@ -14,12 +14,13 @@
 extern "C" {
 #endif
 
-texoL int texoInit(const char* firmwarePath, int pci, int usm, int hv, int channels, int tx = 3, int szCine = 128);
+texoL int texoInit(const char* firmwarePath, int pci, int usm, int hv, int channels, int cw = 0, int szCine = 128);
 texoL void texoShutdown();
 texoL int texoIsInitialized();
 texoL int texoIsImaging();
 
 texoL int texoActivateProbeConnector(int connector);
+texoL int texoSelectProbe(int id);
 texoL int texoGetProbeName(int connector, char* name, int len);
 texoL int texoGetProbeCode(int connector);
 texoL int texoGetProbeNumElements();

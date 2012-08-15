@@ -33,9 +33,7 @@ namespace Ultrasonix
 			{
 				// We must hold the reference to be able to free after Texo is deallocated.
 				objHandle = System::Runtime::InteropServices::GCHandle::Alloc(this);
-				IntPtr ptr = System::Runtime::InteropServices::GCHandle::ToIntPtr(objHandle);
 
-				texoSetCallback(DataCallback, ptr.ToPointer());
 			}
 
 			/// <summary> Deletes the texo instance and frees up object resources. </summary>
@@ -65,6 +63,9 @@ namespace Ultrasonix
 
 				Marshal::FreeHGlobal(pFirmwarePath);
 
+				IntPtr ptr = System::Runtime::InteropServices::GCHandle::ToIntPtr(objHandle);
+				texoSetCallback(DataCallback, ptr.ToPointer());
+
 				return result;
 			}
 	
@@ -86,6 +87,9 @@ namespace Ultrasonix
 					Marshal::FreeHGlobal(pFirmwarePath);
 				}
 
+				IntPtr ptr = System::Runtime::InteropServices::GCHandle::ToIntPtr(objHandle);
+				texoSetCallback(DataCallback, ptr.ToPointer());
+
 				return result;
 			}	    
 	
@@ -96,9 +100,19 @@ namespace Ultrasonix
 
 				IntPtr pFirmwarePath = Marshal::StringToHGlobalAnsi(firmwarePath);
 
-				bool result = texoInit((char*)pFirmwarePath.ToPointer(), pci, usm, hv, channels, tx, sizeCine);
+				bool result;
+					
+				try
+				{
+					result = texoInit((char*)pFirmwarePath.ToPointer(), pci, usm, hv, channels, tx, sizeCine);
+				}
+				finally
+				{
+					Marshal::FreeHGlobal(pFirmwarePath);
+				}
 
-				Marshal::FreeHGlobal(pFirmwarePath);
+				IntPtr ptr = System::Runtime::InteropServices::GCHandle::ToIntPtr(objHandle);
+				texoSetCallback(DataCallback, ptr.ToPointer());
 
 				return result;
 			}
@@ -136,6 +150,11 @@ namespace Ultrasonix
 
 				return nameStr;
 			}
+
+            public: int SelectProbe(int probeId)
+            {
+                return texoSelectProbe(probeId);
+            }
 
 			public: int GetProbeCode(int connector)
 			{
